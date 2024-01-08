@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
     <array name="app_theme_colors">
         <item>@color/medium_light_red</item>
         <item>@color/medium_light_green</item>
@@ -108,7 +108,6 @@
     <attr format="boolean" name="isLightTheme"/>
     <attr format="color" name="lineBright"/>
     <attr format="color" name="lineLight"/>
-    <attr format="reference" name="nestedScrollViewStyle"/>
     <attr format="color" name="textBright"/>
     <attr format="color" name="textLight"/>
     <attr format="color" name="textMedium"/>
@@ -449,15 +448,10 @@
     <item name="tag_accessibility_clickable_spans" type="id"/>
     <item name="tag_accessibility_heading" type="id"/>
     <item name="tag_accessibility_pane_title" type="id"/>
-    <item name="tag_on_apply_window_listener" type="id"/>
-    <item name="tag_on_receive_content_listener" type="id"/>
-    <item name="tag_on_receive_content_mime_types" type="id"/>
     <item name="tag_screen_reader_focusable" type="id"/>
-    <item name="tag_state_description" type="id"/>
     <item name="tag_transition_group" type="id"/>
     <item name="tag_unhandled_key_event_manager" type="id"/>
     <item name="tag_unhandled_key_listeners" type="id"/>
-    <item name="tag_window_insets_animation_callback" type="id"/>
     <item name="text" type="id"/>
     <item name="text2" type="id"/>
     <item name="title" type="id"/>
@@ -476,17 +470,6 @@
     <integer name="cancel_button_image_alpha">127</integer>
     <integer name="config_tooltipAnimTime">150</integer>
     <integer name="status_bar_notification_info_maxnum">999</integer>
-    <string name="VUFORIA_INIT_ERROR_DEVICE_NOT_SUPPORTED">Failed to initialize Vuforia. This device is not supported.</string>
-    <string name="VUFORIA_INIT_ERROR_NO_CAMERA_ACCESS">Failed to initialize Vuforia because the camera is not accessible.  If using a webcam check that it is connected to a USB hub.  If using either
-       the phone camera or a webcam check that the application has the Camera permission.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_CANCELED_KEY">This app license key has been canceled and may no longer be used. Please get a new license key.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_INVALID_KEY">Invalid Vuforia App Key used. See the Vuforia Samples for comments on obtaining a Vuforia Key.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_MISMATCH_KEY">Vuforia App key is not valid for this product. Please get a valid key, by logging into your account at developer.vuforia.com and choosing the right product type during project creation.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_MISSING_KEY">Vuforia App key is missing. Please get a valid key, by logging into your account at developer.vuforia.com and creating a new project.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_NO_NETWORK_PERMANENT">No network available. Please make sure you are connected to the Internet.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_NO_NETWORK_TRANSIENT">Unable to contact server. Please try again later.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_PRODUCT_TYPE_MISMATCH">Vuforia App key is not valid for this product. Please get a valid key, by logging into your account at developer.vuforia.com and choosing the right product type during project creation.</string>
-    <string name="VUFORIA_INIT_LICENSE_ERROR_UNKNOWN_ERROR">Failed to initialize Vuforia.</string>
     <string name="abc_action_bar_home_description">Navigate home</string>
     <string name="abc_action_bar_up_description">Navigate up</string>
     <string name="abc_action_menu_overflow_description">More options</string>
@@ -591,7 +574,6 @@
     <string name="attached">Attached</string>
     <string name="availableConfigListCaption">Available configurations:</string>
     <string name="availableConfigsInfoMessage">These are the configurations the Hardware Wizard was able to find. You can edit each configuration by clicking the edit button. The \'Activate\' button will set that configuration as the current one, which will be used to start the robot.</string>
-    <string name="availableModuleListCaption">Available Expansion Hubs:</string>
     <string name="availableTemplateListCaption">Available templates:</string>
     <string name="batteryLevelLabel">Battery Level:</string>
     <string name="blocks_activity">Blocks</string>
@@ -599,6 +581,7 @@
     <string name="bluetoothLabel">Bluetooth:</string>
     <string name="buttonExitWithoutSaving">Exit Without Saving</string>
     <string name="buttonNameAdd">Add</string>
+    <string name="buttonNameApply">Apply</string>
     <string name="buttonNameCancel">Cancel</string>
     <string name="buttonNameConfigure">Config</string>
     <string name="buttonNameConfigureModuleAddress">Configure Address</string>
@@ -702,6 +685,8 @@
     <string name="device_name_format_ds">0000-%s-DS</string>
     <string name="device_name_format_rc">0000-%s-RC</string>
     <string name="device_type">Device Types</string>
+    <string name="dfrobot_huskylens_description" ns2:ignore="ExtraTranslation">HuskyLens Vision Sensor</string>
+    <string name="dfrobot_huskylens_name" ns2:ignore="ExtraTranslation">HuskyLens</string>
     <string name="dialogEnableModifyingSettingsMessage">
         The original release of Android 6.0 has a bug preventing correct operation of the Driver
         Station app. You can work around this bug by granting the ability to "modify system settings"
@@ -789,22 +774,22 @@
     <string name="lynxFirmwareUpdateReadme">Place any downloaded REV Hub firmware updates you wish to install in this folder. You can then install those updates using the Advanced Settings menu on the Driver Station or Robot Controller.</string>
     <string name="lynxI2cDeviceSynchDisplayName">Expansion Hub I2C Device</string>
     <string name="lynxModuleBatteryIsCurrentlyLow">reported that the battery is currently too low to run motors and servos.</string>
-    <string name="lynxModuleBatteryWasLow">temporarily reported that the battery was too low to run motors and servos while an Op Mode was running.</string>
+    <string name="lynxModuleBatteryWasLow">temporarily reported that the battery was too low to run motors and servos while an OpMode was running.</string>
     <string name="lynxModuleCurrentlyNotResponding">not currently responding to commands.</string>
     <string name="lynxModuleFirmwareOutdated">has firmware that does not meet the minimum requirement for this FTC season. Update to firmware %s or later.</string>
-    <string name="lynxModulePowerLost">reported a temporary complete power loss while an Op Mode was running. Unexpected behavior may result.</string>
-    <string name="lynxModulePreviouslyNotResponding">temporarily stopped responding to commands while an Op Mode was running.</string>
+    <string name="lynxModulePowerLost">reported a temporary complete power loss while an OpMode was running. Unexpected behavior may result.</string>
+    <string name="lynxModulePreviouslyNotResponding">temporarily stopped responding to commands while an OpMode was running.</string>
     <string name="lynxPwmOutputControllerDisplayName">Expansion Hub Pwm Controller</string>
     <string name="lynxServoControllerDisplayName">Expansion Hub Servo Controller</string>
     <string name="lynxUnavailableFWVersionString">firmware version unavailable</string>
     <string name="lynxVoltageSensorDisplayName">Expansion Hub Voltage Sensor</string>
-    <string name="lynx_address_format_module_address">Current address: %d</string>
+    <string name="lynx_address_control_hub_portal">Control Hub Portal</string>
+    <string name="lynx_address_format_expansion_hub_portal_serial">Expansion Hub Portal %s</string>
+    <string name="lynx_address_format_module_address">Expansion Hub w/ address %d</string>
     <string name="lynx_address_format_new_module_address">New address: %d</string>
     <string name="lynx_address_format_no_change">&lt;No change></string>
-    <string name="lynx_address_format_not_changeable">&lt;Not changeable></string>
-    <string name="lynx_address_instructions_no_devices">No Expansion Hubs are connected. Please connect one or more Expansion Hubs via USB, and try again.</string>
-    <string name="lynx_address_instructions_static">Each Expansion Hub connected to a robot controller over the same USB connection (wired or embedded) must have a hub address which is unique within that connection. This screen allows these persistent hub addresses to be changed.</string>
-    <string name="lynx_address_instructions_update">Expansion Hubs with the following serial numbers and addresses are currently connected. To change the address of a hub, select a new address from the dropdown.</string>
+    <string name="lynx_address_instructions_static">Each Expansion Hub must have an address which is unique among all Expansion Hubs connected to the same portal (USB connection or Control Hub). This screen allows these addresses to be changed.\n\nYour configuration file will no longer work if the new hub addresses no longer match it.\n\nIf multiple hubs connected to a portal have the same address, only one or neither of them will show up.</string>
+    <string name="lynx_address_no_devices">No Expansion Hubs are connected. Please connect one or more Expansion Hubs and try again.</string>
     <string name="lynx_embedded_bhi260ap_imu_name">REV internal IMU (BHI260AP)</string>
     <string name="lynx_embedded_bno055_imu_name">REV internal IMU (BNO055)</string>
     <string name="lynx_embedded_imu_description">an embedded IMU</string>
@@ -820,6 +805,7 @@
     <string name="lynx_fw_instructions_update">REV Hubs that will be updated:</string>
     <string name="lynx_fw_instructions_update_post">Note that Expansion Hubs are only available for firmware update if they are plugged in directly via USB (not RS485).\n\nWARNING: While the firmware update is in progress, do not unplug hubs or restart the robot, or a hub may need to be updated again before it can be used.</string>
     <string name="manage_page_no_network">Unavailable. Is Wi-Fi on?</string>
+    <string name="manual_control_op_mode_display_name">Manual Control</string>
     <string name="matchesDSVersionLabel">Matches DS version:</string>
     <string name="menuButtonContentDescription">Menu button</string>
     <string name="moduleDisplayNameLynxUsbDevice">REV Robotics USB Expansion Hub Portal</string>
@@ -908,7 +894,7 @@
     <string name="permPermanentlyDeniedRecovery">
     Click here to be redirected to the Settings activity, then select Permissions and enable %s</string>
     <string name="permRcCameraExplain">The Robot Controller must be able to access the camera in order to enable
-    Vuforia and Tensorflow features.  Regardless of whether or not your OpMode uses these features, you must allow
+    computer vision features.  Regardless of whether or not your OpMode uses these features, you must allow
     this permission. It is not possible to run the application without this permission.  You must allow all permissions.</string>
     <string name="permRcReadExternalStorageExplain">The Robot Controller must be able to access external storage
     for the Blocks and OnBot Java development environments and robot logging.  It is not possible to run the
@@ -1121,6 +1107,7 @@
     <string name="summaryWarnAboutMismatchedAppVersions">Show warning when the Robot Controller and Driver Station are not the same version, which is not allowed at a competition</string>
     <string name="summaryWarnAboutObsoleteSoftware">Show warning when software that is no longer legal for use in the current FTC competition season is detected</string>
     <string name="swapPrompt">Choose the USB controller you want to swap \'%s\' with, or press \'Cancel\'</string>
+    <string name="system_op_mode_display_name">%s (System)</string>
     <string name="templateConfigurationInstructions">To configure your robot using %1$s, attach the following devices, then press the \'Config\' button:\n%2$s</string>
     <string name="templateConfigureConfigurationInstructionsTitle">Configuration Instructions</string>
     <string name="templateConfigureDuplicateNameExceptionMessage">Found %s\n Please fix and re-save</string>
@@ -1208,7 +1195,7 @@
     <string name="warningDhOsObsolete">The Driver Hub OS does not meet the minimum requirement for this FTC season. Update to Driver Hub OS %s or later.</string>
     <string name="warningDsAppObsolete">The Driver Station app is obsolete. You should install the new version for this FTC season.</string>
     <string name="warningDsClockBehind">The Driver Station\'s clock is behind. Please set the clock to the correct time.</string>
-    <string name="warningDuplicateOpMode">An Op Mode with the name \'%s\' is already registered; renaming the duplicate Op Mode.</string>
+    <string name="warningDuplicateOpMode">An OpMode with the name \'%s\' is already registered; renaming the duplicate OpMode.</string>
     <string name="warningI2cCommError">Error communicating with I2C device(s) </string>
     <string name="warningMismatchedAppVersions">The Robot Controller and Driver Station app versions do not match, which is required for competition. You should update the %s app.</string>
     <string name="warningProblemCommunicatingWithUSBDevice">Problem communicating with %s.</string>
@@ -3604,12 +3591,6 @@
           <enum name="front" value="98"/>
        </attr>
     </declare-styleable>
-    <declare-styleable name="Capability">
-        
-        <attr format="reference" name="queryPatterns"/>
-        
-        <attr format="boolean" name="shortcutMatchRequired"/>
-    </declare-styleable>
     <declare-styleable name="ColorListPreference">
         <attr format="reference" name="colors"/>
     </declare-styleable>
@@ -3696,8 +3677,6 @@
               timeout and wait until a reply is received from the font provider. -->
             <enum name="forever" value="-1"/>
         </attr>
-        
-        <attr format="string" name="fontProviderSystemFontFamily"/>
     </declare-styleable>
     <declare-styleable name="FontFamilyFont">
         

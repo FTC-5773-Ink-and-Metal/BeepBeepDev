@@ -1,6 +1,18 @@
 package org.firstinspires.ftc.teamcode.beepbeep;
 
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.*;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kS;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxAccel;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxVel;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -20,8 +32,6 @@ public class Trajectory {
     BezierCurveCalc bezierCalc = new BezierCurveCalc();
     BezierCurve curve_x, curve_y;
     private double curveLength, curve_heading;
-
-    Linear linear;
 
     MotionProfile motionProfile;
     Consumer<Double> method;
@@ -43,13 +53,6 @@ public class Trajectory {
         this.method = (time) -> { followBezier(time); };
     }
 
-    public Trajectory(Linear linear) {
-        this.trajType = "linear";
-        LinearCalc calc = new LinearCalc();
-        this.motionProfile = new MotionProfile(maxAccel, maxVel, calc.path_length(linear));
-        this.method = (time) -> { followLinear(time); };
-    }
-
     public void follow(Double time) {
         this.method.accept(time);
     }
@@ -60,7 +63,7 @@ public class Trajectory {
         ElapsedTime timer = new ElapsedTime();
 
         // Position
-        instantTargetPosition = this.motionProfile.getPosition(time);
+        instantTargetPosition = this.motionProfile.getPosition(timer.time());
         u = bezierCalc.bezier_param_of_disp(instantTargetPosition, bezierCalc.get_sums(), bezierCalc.get_upsilon());
         control_signal_x = pid_x.calculate(this.curve_x.bezier_get(u), poseEstimate.getX());
         control_signal_y = pid_y.calculate(this.curve_y.bezier_get(u), poseEstimate.getY());

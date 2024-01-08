@@ -5,18 +5,18 @@
 </variables>
 <block type="procedures_defnoreturn" id=".C5qAWP%TVp.hOLyFe(w" deletable="false" x="50" y="50">
 <field name="NAME">runOpMode</field>
-<comment pinned="false" h="45" w="532">This function is executed when this Op Mode is selected from the Driver Station.</comment>
+<comment pinned="false" h="45" w="532">This function is executed when this OpMode is selected from the Driver Station.</comment>
 <statement name="STACK">
 <block type="comment" id="}uxrcK{*_XRvt~Af0=Zh">
 <field name="COMMENT">Initialize the IMU.</field>
 <next>
 <block type="imu_initialize" id="YFa-}1E/YYbH7ih,p2MZ">
 <field name="IDENTIFIER">imuAsIMU</field>
-<comment pinned="false" h="120" w="250">Initializes the IMU with non-default settings. To use this block, plug one of the "new IMU.Parameters" blocks into the parameters socket.</comment>
+<comment pinned="false" h="120" w="250">Initialize the IMU with non-default settings. To use this block, plug one of the "new IMU.Parameters" blocks into the parameters socket.</comment>
 <data>{"IDENTIFIER":"imu"}</data>
 <value name="PARAMETERS">
 <block type="imuParameters_create" id="gY43_;=B@S~ALfczk-Wa">
-<comment pinned="false" h="150" w="325">Creates a Parameters object for use with an IMU in a REV Robotics Control Hub or Expansion Hub, specifying the hub's orientation on the robot via the direction that the REV Robotics logo is facing and the direction that the USB ports are facing.</comment>
+<comment pinned="false" h="150" w="325">Create a Parameters object for use with an IMU in a REV Robotics Control Hub or Expansion Hub, specifying the hub's orientation on the robot via the direction that the REV Robotics logo is facing and the direction that the USB ports are facing.</comment>
 <value name="IMU_ORIENTATION_ON_ROBOT">
 <block type="revHubOrientationOnRobot_create1" id="qrP9|m*S_Cva+x@u+dBP">
 <value name="LOGO_FACING_DIRECTION">

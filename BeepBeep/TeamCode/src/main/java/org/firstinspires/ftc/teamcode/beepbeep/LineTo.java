@@ -1,6 +1,19 @@
 package org.firstinspires.ftc.teamcode.beepbeep;
 
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.*;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kS;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxAccel;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxVel;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -15,7 +28,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Config
-@TeleOp(group = "drive")
+@TeleOp(group = "dev")
 public class LineTo extends LinearOpMode {
 
     // Target positions and heading

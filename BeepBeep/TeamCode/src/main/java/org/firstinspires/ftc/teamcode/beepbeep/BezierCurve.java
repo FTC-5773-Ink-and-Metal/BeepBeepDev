@@ -3,6 +3,12 @@ package org.firstinspires.ftc.teamcode.beepbeep;
 public class BezierCurve {
     private double a, b, c, d;
 
+    /**
+     * @param x1 - start
+     * @param x2 - interp1
+     * @param x3 - interp2
+     * @param x4 - end
+     */
     public BezierCurve(double x1, double x2, double x3, double x4) {
         this.a = x1;
         this.b = x2;

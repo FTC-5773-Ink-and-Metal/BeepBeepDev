@@ -1,6 +1,20 @@
 package org.firstinspires.ftc.teamcode.beepbeep;
 
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.*;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kS_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kS_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kV_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kV_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxAccel;
+import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxVel;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -15,7 +29,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Config
-@TeleOp(group = "drive")
+@TeleOp(group = "dev")
 public class FollowCurveTest extends LinearOpMode {
 
     // 0, 1, 30, 30
@@ -113,11 +127,14 @@ public class FollowCurveTest extends LinearOpMode {
 
             // Print pose to telemetry
             telemetry.addData("x", poseEstimate.getX());
-            telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.addData("x error", bezier_x.bezier_get(u) - poseEstimate.getX());
+
+            telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("y error", bezier_y.bezier_get(u) - poseEstimate.getY());
+
+            telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
+
             telemetry.addData("instantTargetPosition", instantTargetPosition);
             telemetry.addData("instantTargetVelocity", instantTargetVelocity);
             telemetry.update();

@@ -27,7 +27,6 @@ id textGamepad2
 id textNetworkConnectionStatus
 id textOpMode
 id textRobotStatus
-id tfodMonitorViewId
 id top_bar
 id webViewBlocksRuntime
 layout activity_ftc_controller

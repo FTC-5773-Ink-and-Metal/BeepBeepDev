@@ -115,6 +115,7 @@ int attr buttonStyle 0x0
 int attr buttonStyleSmall 0x0
 int attr buttonTint 0x0
 int attr buttonTintMode 0x0
+int attr camera_id 0x0
 int attr checkboxStyle 0x0
 int attr checkedTextViewStyle 0x0
 int attr closeIcon 0x0
@@ -147,6 +148,7 @@ int attr contentInsetRight 0x0
 int attr contentInsetStart 0x0
 int attr contentInsetStartWithNavigation 0x0
 int attr controlBackground 0x0
+int attr coordinatorLayoutStyle 0x0
 int attr customNavigationLayout 0x0
 int attr defaultQueryHint 0x0
 int attr dialogCornerRadius 0x0
@@ -205,8 +207,15 @@ int attr indeterminateProgressStyle 0x0
 int attr initialActivityCount 0x0
 int attr isLightTheme 0x0
 int attr itemPadding 0x0
+int attr keylines 0x0
 int attr lastBaselineToBottomHeight 0x0
 int attr layout 0x0
+int attr layout_anchor 0x0
+int attr layout_anchorGravity 0x0
+int attr layout_behavior 0x0
+int attr layout_dodgeInsetEdges 0x0
+int attr layout_insetEdge 0x0
+int attr layout_keyline 0x0
 int attr lineBright 0x0
 int attr lineHeight 0x0
 int attr lineLight 0x0
@@ -268,6 +277,7 @@ int attr showAsAction 0x0
 int attr showDividers 0x0
 int attr showText 0x0
 int attr showTitle 0x0
+int attr show_fps 0x0
 int attr singleChoiceItemLayout 0x0
 int attr spinBars 0x0
 int attr spinnerDropDownItemStyle 0x0
@@ -275,6 +285,7 @@ int attr spinnerStyle 0x0
 int attr splitTrack 0x0
 int attr srcCompat 0x0
 int attr state_above_anchor 0x0
+int attr statusBarBackground 0x0
 int attr subMenuArrow 0x0
 int attr submitBackground 0x0
 int attr subtitle 0x0
@@ -362,6 +373,7 @@ int attr zxing_viewfinder_mask 0x0
 int bool abc_action_bar_embed_tabs 0x0
 int bool abc_allow_stacked_button_bar 0x0
 int bool abc_config_actionMenuItemAllCaps 0x0
+int bool abc_config_showMenuShortcutsWhenKeyboardPresent 0x0
 int color abc_background_cache_hint_selector_material_dark 0x0
 int color abc_background_cache_hint_selector_material_light 0x0
 int color abc_btn_colored_borderless_text_material 0x0
@@ -371,6 +383,7 @@ int color abc_decor_view_status_guard 0x0
 int color abc_decor_view_status_guard_light 0x0
 int color abc_hint_foreground_material_dark 0x0
 int color abc_hint_foreground_material_light 0x0
+int color abc_input_method_navigation_guard 0x0
 int color abc_primary_text_disable_only_material_dark 0x0
 int color abc_primary_text_disable_only_material_light 0x0
 int color abc_primary_text_material_dark 0x0
@@ -436,11 +449,13 @@ int color dim_foreground_disabled_material_light 0x0
 int color dim_foreground_material_dark 0x0
 int color dim_foreground_material_light 0x0
 int color e_gray 0x0
+int color error_color_material 0x0
 int color error_color_material_dark 0x0
 int color error_color_material_light 0x0
 int color firstblue 0x0
 int color firstgreen 0x0
 int color firstorange 0x0
+int color firstorgange 0x0
 int color firstred 0x0
 int color foreground_material_dark 0x0
 int color foreground_material_light 0x0
@@ -551,6 +566,7 @@ int dimen abc_action_bar_elevation_material 0x0
 int dimen abc_action_bar_icon_vertical_padding_material 0x0
 int dimen abc_action_bar_overflow_padding_end_material 0x0
 int dimen abc_action_bar_overflow_padding_start_material 0x0
+int dimen abc_action_bar_progress_bar_size 0x0
 int dimen abc_action_bar_stacked_max_height 0x0
 int dimen abc_action_bar_stacked_tab_max_width 0x0
 int dimen abc_action_bar_subtitle_bottom_margin_material 0x0
@@ -757,6 +773,7 @@ int drawable btn_radio_off_to_on_mtrl_animation 0x0
 int drawable btn_radio_on_mtrl 0x0
 int drawable btn_radio_on_to_off_mtrl_animation 0x0
 int drawable button_shape 0x0
+int drawable centerstage_background 0x0
 int drawable feedback_shape_orange 0x0
 int drawable freightfrenzy_background 0x0
 int drawable ic_arrow_back_black_24dp 0x0
@@ -846,7 +863,6 @@ int id actions 0x0
 int id activity_chooser_view_content 0x0
 int id add 0x0
 int id addButton 0x0
-int id addressListCaption 0x0
 int id airplaneMode 0x0
 int id airplaneModeLayout 0x0
 int id airplaneMode_img 0x0
@@ -854,10 +870,13 @@ int id alertTitle 0x0
 int id androidVersion 0x0
 int id androidVersionLayout 0x0
 int id androidVersion_img 0x0
+int id any 0x0
+int id applyButton 0x0
 int id appsInstalled 0x0
 int id async 0x0
 int id attached_title 0x0
 int id autoInspectQr 0x0
+int id back 0x0
 int id backButton 0x0
 int id backbar 0x0
 int id backgroundDarkGrayHolder 0x0
@@ -868,6 +887,7 @@ int id batteryLevel 0x0
 int id blocking 0x0
 int id bluetoothEnabled 0x0
 int id bluetoothEnabled_img 0x0
+int id bottom 0x0
 int id buttonList 0x0
 int id buttonPanel 0x0
 int id bytesPerSecond 0x0
@@ -906,12 +926,14 @@ int id devices_info_btn 0x0
 int id dialog_button 0x0
 int id disable_bluetooth 0x0
 int id disconnect_from_wifidirect 0x0
+int id divider 0x0
 int id doneButton 0x0
 int id dropdown_layout 0x0
 int id editTextResult 0x0
 int id edit_controller_btn 0x0
 int id edit_query 0x0
 int id empty_filelist 0x0
+int id end 0x0
 int id entire_screen 0x0
 int id expand_activities_button 0x0
 int id expanded_menu 0x0
@@ -934,6 +956,7 @@ int id fitXY 0x0
 int id fixButton 0x0
 int id forever 0x0
 int id fragment_container_view_tag 0x0
+int id front 0x0
 int id groupList 0x0
 int id group_divider 0x0
 int id header 0x0
@@ -969,6 +992,7 @@ int id item_list_parent 0x0
 int id labelManufacturer 0x0
 int id labelModel 0x0
 int id labelWifiName 0x0
+int id left 0x0
 int id line1 0x0
 int id line3 0x0
 int id linearLayout 0x0
@@ -981,7 +1005,6 @@ int id locationEnabled 0x0
 int id locationEnabled_img 0x0
 int id locationLabel 0x0
 int id lynxAddressButtons 0x0
-int id lynxAddressListInstructions 0x0
 int id lynxFirmwareAvailableFilesGroup 0x0
 int id lynxFirmwareFilesHeader 0x0
 int id lynxFirmwareHubsHeader 0x0
@@ -998,11 +1021,10 @@ int id matchesDSVersion_txt 0x0
 int id menu_buttons 0x0
 int id message 0x0
 int id moduleAddressText 0x0
-int id moduleList 0x0
-int id moduleSerialText 0x0
 int id monitorContainer 0x0
 int id multiply 0x0
 int id new_button 0x0
+int id noDevicesNotice 0x0
 int id none 0x0
 int id normal 0x0
 int id notification_background 0x0
@@ -1021,11 +1043,14 @@ int id permDeniedText 0x0
 int id portNumber 0x0
 int id port_number 0x0
 int id port_title 0x0
+int id portalList 0x0
+int id portalSerialText 0x0
 int id progress_circular 0x0
 int id progress_horizontal 0x0
 int id radio 0x0
 int id rcPasswordLayout 0x0
 int id readOnlyExplanation 0x0
+int id right 0x0
 int id right_icon 0x0
 int id right_side 0x0
 int id robotIcon 0x0
@@ -1057,6 +1082,7 @@ int id split_action_bar 0x0
 int id src_atop 0x0
 int id src_in 0x0
 int id src_over 0x0
+int id start 0x0
 int id submenuarrow 0x0
 int id submit_area 0x0
 int id swapButton 0x0
@@ -1104,12 +1130,12 @@ int id textView8 0x0
 int id textView9 0x0
 int id textViewHubFirmware 0x0
 int id textViewPassword 0x0
-int id tfodMonitorViewId 0x0
 int id time 0x0
 int id title 0x0
 int id titleDividerNoCustom 0x0
 int id titleTextView 0x0
 int id title_template 0x0
+int id top 0x0
 int id topPanel 0x0
 int id top_bar 0x0
 int id trafficCount 0x0
@@ -1217,6 +1243,7 @@ int layout custom_dialog 0x0
 int layout digital_device 0x0
 int layout digital_device_lynx 0x0
 int layout digital_devices 0x0
+int layout empty 0x0
 int layout feedback 0x0
 int layout file_info 0x0
 int layout fragment_wifi_mute 0x0
@@ -1229,7 +1256,7 @@ int layout item_list_parent 0x0
 int layout loading_indicator_overlay 0x0
 int layout lynx_module 0x0
 int layout lynx_module_configure_address 0x0
-int layout lynx_module_configure_address_spin_item 0x0
+int layout lynx_portal_configure_addresses 0x0
 int layout lynx_usb_device 0x0
 int layout motor 0x0
 int layout motor_controller_banner 0x0
@@ -1310,6 +1337,18 @@ int string abc_activity_chooser_view_see_all 0x0
 int string abc_activitychooserview_choose_application 0x0
 int string abc_capital_off 0x0
 int string abc_capital_on 0x0
+int string abc_font_family_body_1_material 0x0
+int string abc_font_family_body_2_material 0x0
+int string abc_font_family_button_material 0x0
+int string abc_font_family_caption_material 0x0
+int string abc_font_family_display_1_material 0x0
+int string abc_font_family_display_2_material 0x0
+int string abc_font_family_display_3_material 0x0
+int string abc_font_family_display_4_material 0x0
+int string abc_font_family_headline_material 0x0
+int string abc_font_family_menu_material 0x0
+int string abc_font_family_subhead_material 0x0
+int string abc_font_family_title_material 0x0
 int string abc_menu_alt_shortcut_label 0x0
 int string abc_menu_ctrl_shortcut_label 0x0
 int string abc_menu_delete_shortcut_label 0x0
@@ -1403,7 +1442,6 @@ int string appsInstalledLabel 0x0
 int string attached 0x0
 int string availableConfigListCaption 0x0
 int string availableConfigsInfoMessage 0x0
-int string availableModuleListCaption 0x0
 int string availableTemplateListCaption 0x0
 int string batteryLevelLabel 0x0
 int string blocks_activity 0x0
@@ -1411,6 +1449,7 @@ int string blocks_menu_item 0x0
 int string bluetoothLabel 0x0
 int string buttonExitWithoutSaving 0x0
 int string buttonNameAdd 0x0
+int string buttonNameApply 0x0
 int string buttonNameCancel 0x0
 int string buttonNameConfigure 0x0
 int string buttonNameConfigureModuleAddress 0x0
@@ -1457,26 +1496,45 @@ int string configTemplateInstructions 0x0
 int string configToDeleteDoesNotExist 0x0
 int string configTypeAdafruitColorSensor 0x0
 int string configTypeAnalogInput 0x0
+int string configTypeAnalogOutput 0x0
 int string configTypeColorSensor 0x0
 int string configTypeContinuousRotationServo 0x0
+int string configTypeDeviceInterfaceModule 0x0
 int string configTypeDigitalDevice 0x0
+int string configTypeDigitalDevices 0x0
 int string configTypeGyro 0x0
+int string configTypeHTAccelerometer 0x0
+int string configTypeHTColorSensor 0x0
+int string configTypeHTCompass 0x0
 int string configTypeHTGyro 0x0
+int string configTypeHTIrSeeker 0x0
+int string configTypeHTLightSensor 0x0
+int string configTypeHTTouchSensorMultiplexer 0x0
+int string configTypeI2cDevice 0x0
+int string configTypeI2cDeviceSynch 0x0
+int string configTypeI2cDevices 0x0
 int string configTypeIrSeekerV3 0x0
 int string configTypeLED 0x0
+int string configTypeLegacyModuleController 0x0
 int string configTypeLynxColorSensor 0x0
 int string configTypeLynxModule 0x0
 int string configTypeLynxUSBDevice 0x0
 int string configTypeMRColorSensor 0x0
 int string configTypeMRGyro 0x0
 int string configTypeMRTouchSensor 0x0
+int string configTypeMatrixController 0x0
 int string configTypeMotor 0x0
+int string configTypeMotorController 0x0
 int string configTypeMotors 0x0
+int string configTypeNXTTouchSensor 0x0
+int string configTypeNXTUltrasonicSensor 0x0
 int string configTypeNothing 0x0
 int string configTypeOpticalDistanceSensor 0x0
 int string configTypePulseWidthDevice 0x0
+int string configTypePulseWidthDevices 0x0
 int string configTypeRevTouchSensor 0x0
 int string configTypeServo 0x0
+int string configTypeServoController 0x0
 int string configTypeServos 0x0
 int string configTypeUnknown 0x0
 int string configTypeWebcam 0x0
@@ -1500,9 +1558,13 @@ int string control_hub_module_name 0x0
 int string control_hub_usb_device_name 0x0
 int string controllerPortConnectionInfoFormat 0x0
 int string counted_camera_name 0x0
+int string counted_device_interface_module_name 0x0
 int string counted_imu_name 0x0
+int string counted_legacy_module_name 0x0
 int string counted_lynx_module_name 0x0
 int string counted_lynx_usb_device_name 0x0
+int string counted_motor_controller_name 0x0
+int string counted_servo_controller_name 0x0
 int string currentApLabel 0x0
 int string defaultOpModeName 0x0
 int string default_port 0x0
@@ -1514,9 +1576,13 @@ int string device_info 0x0
 int string device_name_format_ds 0x0
 int string device_name_format_rc 0x0
 int string device_type 0x0
+int string dfrobot_huskylens_description 0x0
+int string dfrobot_huskylens_name 0x0
 int string dialogEnableModifyingSettingsMessage 0x0
 int string dialogEnableModifyingSettingsTitle 0x0
 int string dialogMessagePleaseWait 0x0
+int string displayNameMatrixMotorController 0x0
+int string displayNameMatrixServoController 0x0
 int string display_server_log_button 0x0
 int string driverHubOsVersionLabel 0x0
 int string driverStationLabel 0x0
@@ -1603,16 +1669,17 @@ int string lynxPwmOutputControllerDisplayName 0x0
 int string lynxServoControllerDisplayName 0x0
 int string lynxUnavailableFWVersionString 0x0
 int string lynxVoltageSensorDisplayName 0x0
+int string lynx_address_control_hub_portal 0x0
+int string lynx_address_format_expansion_hub_portal_serial 0x0
 int string lynx_address_format_module_address 0x0
 int string lynx_address_format_new_module_address 0x0
 int string lynx_address_format_no_change 0x0
-int string lynx_address_format_not_changeable 0x0
-int string lynx_address_instructions_no_devices 0x0
 int string lynx_address_instructions_static 0x0
-int string lynx_address_instructions_update 0x0
+int string lynx_address_no_devices 0x0
 int string lynx_embedded_bhi260ap_imu_name 0x0
 int string lynx_embedded_bno055_imu_name 0x0
 int string lynx_embedded_imu_description 0x0
+int string lynx_embedded_imu_name 0x0
 int string lynx_fw_available_files 0x0
 int string lynx_fw_instructions_controlhub_item_title 0x0
 int string lynx_fw_instructions_exhub_item_title 0x0
@@ -1625,9 +1692,14 @@ int string lynx_fw_instructions_serial 0x0
 int string lynx_fw_instructions_update 0x0
 int string lynx_fw_instructions_update_post 0x0
 int string manage_page_no_network 0x0
+int string manual_control_op_mode_display_name 0x0
 int string matchesDSVersionLabel 0x0
 int string menuButtonContentDescription 0x0
+int string moduleDisplayNameCDIM 0x0
+int string moduleDisplayNameLegacyModule 0x0
 int string moduleDisplayNameLynxUsbDevice 0x0
+int string moduleDisplayNameMotorController 0x0
+int string moduleDisplayNameServoController 0x0
 int string moduleDisplayNameWebcam 0x0
 int string motor 0x0
 int string motor_controller_name_prompt 0x0
@@ -1678,6 +1750,8 @@ int string noVoltageSensor 0x0
 int string notAllDevicesFoundMessage 0x0
 int string notAllDevicesFoundTitle 0x0
 int string not_available 0x0
+int string nxtDcMotorControllerName 0x0
+int string nxtServoControllerName 0x0
 int string optical_distance_sensor_description 0x0
 int string ota_result_type_device_not_supported 0x0
 int string ota_result_type_downgrade_not_authorized 0x0
@@ -1729,6 +1803,7 @@ int string pref_device_name_rc_display 0x0
 int string pref_device_name_tracking 0x0
 int string pref_dh_os_version_code 0x0
 int string pref_ds_supports_5_ghz 0x0
+int string pref_ds_version_code 0x0
 int string pref_ftc_season_year_of_current_rc 0x0
 int string pref_gamepad_user1_type_key 0x0
 int string pref_gamepad_user2_type_key 0x0
@@ -1770,6 +1845,7 @@ int string pref_warn_about_2_4_ghz_band 0x0
 int string pref_warn_about_incorrect_clocks 0x0
 int string pref_warn_about_mismatched_app_versions 0x0
 int string pref_warn_about_obsolete_software 0x0
+int string pref_warn_about_outdated_firmware 0x0
 int string pref_wifi_automute 0x0
 int string pref_wifip2p_channel 0x0
 int string pref_wifip2p_groupowner_connectedto 0x0
@@ -1908,6 +1984,7 @@ int string summaryWarnAboutIncorrectClocks 0x0
 int string summaryWarnAboutMismatchedAppVersions 0x0
 int string summaryWarnAboutObsoleteSoftware 0x0
 int string swapPrompt 0x0
+int string system_op_mode_display_name 0x0
 int string templateConfigurationInstructions 0x0
 int string templateConfigureConfigurationInstructionsTitle 0x0
 int string templateConfigureDuplicateNameExceptionMessage 0x0
@@ -2392,6 +2469,7 @@ int style Widget_AppCompat_Toolbar 0x0
 int style Widget_AppCompat_Toolbar_Button_Navigation 0x0
 int style Widget_Compat_NotificationActionContainer 0x0
 int style Widget_Compat_NotificationActionText 0x0
+int style Widget_Support_CoordinatorLayout 0x0
 int style zxing_CaptureTheme 0x0
 int[] styleable ActionBar { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable ActionBar_background 0
@@ -2630,6 +2708,9 @@ int styleable AppCompatTheme_windowMinWidthMinor 123
 int styleable AppCompatTheme_windowNoTitle 124
 int[] styleable ButtonBarLayout { 0x0 }
 int styleable ButtonBarLayout_allowStacking 0
+int[] styleable CameraBridgeViewBase { 0x0, 0x0 }
+int styleable CameraBridgeViewBase_camera_id 0
+int styleable CameraBridgeViewBase_show_fps 1
 int[] styleable Capability { 0x0, 0x0 }
 int styleable Capability_queryPatterns 0
 int styleable Capability_shortcutMatchRequired 1
@@ -2644,6 +2725,17 @@ int styleable CompoundButton_android_button 0
 int styleable CompoundButton_buttonCompat 1
 int styleable CompoundButton_buttonTint 2
 int styleable CompoundButton_buttonTintMode 3
+int[] styleable CoordinatorLayout { 0x0, 0x0 }
+int styleable CoordinatorLayout_keylines 0
+int styleable CoordinatorLayout_statusBarBackground 1
+int[] styleable CoordinatorLayout_Layout { 0x10100b3, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
+int styleable CoordinatorLayout_Layout_android_layout_gravity 0
+int styleable CoordinatorLayout_Layout_layout_anchor 1
+int styleable CoordinatorLayout_Layout_layout_anchorGravity 2
+int styleable CoordinatorLayout_Layout_layout_behavior 3
+int styleable CoordinatorLayout_Layout_layout_dodgeInsetEdges 4
+int styleable CoordinatorLayout_Layout_layout_insetEdge 5
+int styleable CoordinatorLayout_Layout_layout_keyline 6
 int[] styleable DrawerArrowToggle { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }
 int styleable DrawerArrowToggle_arrowHeadLength 0
 int styleable DrawerArrowToggle_arrowShaftLength 1

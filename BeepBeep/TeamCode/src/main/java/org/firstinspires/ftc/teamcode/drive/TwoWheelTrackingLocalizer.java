@@ -35,27 +35,28 @@ import java.util.List;
  */
 @Config
 public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
-    public static double TICKS_PER_REV =8192;
+    public static double TICKS_PER_REV = 4096;
     public static double WHEEL_RADIUS = 0.6889764; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double PARALLEL_X = -3.97638; // X is the up and down direction
-    public static double PARALLEL_Y = -2.32283; // Y is the strafe direction
+    public static double PARALLEL_X = -3.19192913
+            ; // X is the up and down direction
+    public static double PARALLEL_Y = 6.6614173; // Y is the strafe direction
 
-    public static double PERPENDICULAR_X = 5.66929;
-    public static double PERPENDICULAR_Y = -0.354331;
+    public static double PERPENDICULAR_X = -3.19192913;
+    public static double PERPENDICULAR_Y = -6.6614173;
 
-    public static double X_MULTIPLIER = 1.021532606323536; // Multiplier in the X direction
-    public static double Y_MULTIPLIER = 1.0022919479386; // Multiplier in the Y direction
+    public static double X_MULTIPLIER = 0.9953631532834842; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 0.997114679718691; // Multiplier in the Y direction
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
     // Perpendicular is perpendicular to the forward axis
     private Encoder parallelEncoder, perpendicularEncoder;
 
-    private SampleMecanumDrive drive;
+    private Drive drive;
 
-    public TwoWheelTrackingLocalizer(HardwareMap hardwareMap, SampleMecanumDrive drive) {
+    public TwoWheelTrackingLocalizer(HardwareMap hardwareMap, Drive drive) {
         super(Arrays.asList(
                 new Pose2d(PARALLEL_X, PARALLEL_Y, 0),
                 new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(90))
@@ -64,10 +65,12 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         this.drive = drive;
 
         parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftFront"));
-        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFront"));
+        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "slidesRight"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        parallelEncoder.setDirection(Encoder.Direction.REVERSE);
         perpendicularEncoder.setDirection(Encoder.Direction.REVERSE);
+
     }
 
     public static double encoderTicksToInches(double ticks) {

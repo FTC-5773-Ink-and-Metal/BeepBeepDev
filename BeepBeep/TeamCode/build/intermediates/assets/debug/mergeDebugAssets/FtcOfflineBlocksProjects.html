@@ -32,6 +32,7 @@
   <script type="text/javascript" src="blocks/android_sound_pool.js"></script>
   <script type="text/javascript" src="blocks/android_text_to_speech.js"></script>
   <script type="text/javascript" src="blocks/angular_velocity.js"></script>
+  <script type="text/javascript" src="blocks/april_tag.js"></script>
   <script type="text/javascript" src="blocks/bno055imu.js"></script>
   <script type="text/javascript" src="blocks/bno055imu_parameters.js"></script>
   <!-- clipboard_util.js is not needed -->
@@ -44,11 +45,14 @@
   <script type="text/javascript" src="blocks/dc_motor.js"></script>
   <script type="text/javascript" src="blocks/digital_channel.js"></script>
   <script type="text/javascript" src="blocks/distance_sensor.js"></script>
-  <script type="text/javascript" src="blocks/elapsed_time.js"></script>
   <script type="text/javascript" src="blocks/elapsed_time2.js"></script>
+  <script type="text/javascript" src="blocks/exposure_control.js"></script>
+  <script type="text/javascript" src="blocks/focus_control.js"></script>
+  <script type="text/javascript" src="blocks/gain_control.js"></script>
   <script type="text/javascript" src="blocks/gamepad.js"></script>
   <script type="text/javascript" src="blocks/gyro_sensor.js"></script>
   <script type="text/javascript" src="blocks/hardware_util.js"></script>
+  <script type="text/javascript" src="blocks/husky_lens.js"></script>
   <script type="text/javascript" src="blocks/imu.js"></script>
   <script type="text/javascript" src="blocks/imu_parameters.js"></script>
   <script type="text/javascript" src="blocks/ir_seeker_sensor.js"></script>
@@ -69,6 +73,7 @@
   <script type="text/javascript" src="blocks/pidf_coefficients.js"></script>
   <script type="text/javascript" src="blocks/position.js"></script>
   <script type="text/javascript" src="blocks/project_util.js"></script>
+  <script type="text/javascript" src="blocks/ptz_control.js"></script>
   <script type="text/javascript" src="blocks/quaternion.js"></script>
   <script type="text/javascript" src="blocks/range.js"></script>
   <script type="text/javascript" src="blocks/rev_blinkin_led_driver.js"></script>
@@ -80,33 +85,39 @@
   <script type="text/javascript" src="blocks/system.js"></script>
   <script type="text/javascript" src="blocks/telemetry.js"></script>
   <script type="text/javascript" src="blocks/temperature.js"></script>
-  <script type="text/javascript" src="blocks/tfod.js"></script>
-  <script type="text/javascript" src="blocks/tfod_base.js"></script>
-  <script type="text/javascript" src="blocks/tfod_current_game.js"></script>
-  <script type="text/javascript" src="blocks/tfod_custom_model.js"></script>
+  <script type="text/javascript" src="blocks/tensor_flow.js"></script>
   <script type="text/javascript" src="blocks/tfod_recognition.js"></script>
-  <script type="text/javascript" src="blocks/tfod_rover_ruckus.js"></script>
-  <script type="text/javascript" src="blocks/tfod_sky_stone.js"></script>
   <script type="text/javascript" src="blocks/toolbox_util.js"></script>
   <script type="text/javascript" src="blocks/touch_sensor.js"></script>
   <script type="text/javascript" src="blocks/ultrasonic_sensor.js"></script>
   <script type="text/javascript" src="blocks/vars.js"></script>
   <script type="text/javascript" src="blocks/vector_f.js"></script>
   <script type="text/javascript" src="blocks/velocity.js"></script>
+  <script type="text/javascript" src="blocks/vision_portal.js"></script>
   <script type="text/javascript" src="blocks/voltage_sensor.js"></script>
-  <script type="text/javascript" src="blocks/vuforia.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_current_game.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_localizer.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_localizer_parameters.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_relic_recovery.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_rover_ruckus.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_sky_stone.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_trackable.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_trackable_default_listener.js"></script>
-  <script type="text/javascript" src="blocks/vuforia_trackables.js"></script>
+  <script type="text/javascript" src="blocks/white_balance_control.js"></script>
   <script type="text/javascript" src="blocks/yaw_pitch_roll_angles.js"></script>
 
-  <title>FTC - My Op Modes</title>
+  <script type="text/javascript" src="blocks/obsolete/elapsed_time.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/obsolete.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/tfod.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/tfod_base.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/tfod_current_game.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/tfod_custom_model.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/tfod_rover_ruckus.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/tfod_sky_stone.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_current_game.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_localizer.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_localizer_parameters.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_relic_recovery.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_rover_ruckus.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_sky_stone.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_trackable.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_trackable_default_listener.js"></script>
+  <script type="text/javascript" src="blocks/obsolete/vuforia_trackables.js"></script>
+
+  <title>FTC - My OpModes</title>
 </head>
 
 <body onload="initialize()">
@@ -119,8 +130,8 @@
       <table width="100%">
         <tr>
           <td>
-            <button id="newProjectButton" onclick="newProjectButtonClicked()">Create New Op Mode</button>
-            <button id="uploadProjectButton" onclick="uploadProjectButtonClicked()">Upload Op Mode</button>
+            <button id="newProjectButton" onclick="newProjectButtonClicked()">Create New OpMode</button>
+            <button id="uploadProjectButton" onclick="uploadProjectButtonClicked()">Upload OpMode</button>
           </td>
           <td align="right">
           </td>
@@ -130,10 +141,10 @@
         </tr>
         <tr>
           <td>
-            <button id="renameProjectButton" disabled="true" onclick="renameProjectButtonClicked()">Rename Selected Op Mode</button>
-            <button id="copyProjectButton" disabled="true" onclick="copyProjectButtonClicked()">Copy Selected Op Mode</button>
-            <button id="deleteProjectsButton" disabled="true" onclick="deleteProjectsButtonClicked()">Delete Selected Op Modes</button>
-            <button id="downloadProjectsButton" disabled="true" onclick="downloadProjectsButtonClicked()">Download Selected Op Modes</button>
+            <button id="renameProjectButton" disabled="true" onclick="renameProjectButtonClicked()">Rename Selected OpMode</button>
+            <button id="copyProjectButton" disabled="true" onclick="copyProjectButtonClicked()">Copy Selected OpMode</button>
+            <button id="deleteProjectsButton" disabled="true" onclick="deleteProjectsButtonClicked()">Delete Selected OpModes</button>
+            <button id="downloadProjectsButton" disabled="true" onclick="downloadProjectsButtonClicked()">Download Selected OpModes</button>
             <a id="download_link"></a>
           </td>
           <td align="right">
@@ -146,7 +157,7 @@
     <td class="blank_td" colspan="2"></td>
   </tr>
   <tr>
-    <td class="my_projects_td" colspan="2">My Op Modes</td>
+    <td class="my_projects_td" colspan="2">My OpModes</td>
   </tr>
   <tr>
     <td class="blank_td" colspan="2"></td>
@@ -156,7 +167,7 @@
   <table id="projectsTable" width="100%">
     <tr class="header_tr">
       <td><input type="checkbox" id="checkbox_all" onclick="projectCheckAllChanged()"></td>
-      <td width="30%"><div class="header_td" onclick="toggleSortByName()">Op Mode Name<span id="sortByNameIndicator">&nbsp;</span></div></td>
+      <td width="30%"><div class="header_td" onclick="toggleSortByName()">OpMode Name<span id="sortByNameIndicator">&nbsp;</span></div></td>
       <td width="40%"><div class="header_td" onclick="toggleSortByDateModified()">Date Modified<span id="sortByDateModifiedIndicator">&nbsp;</span></div></td>
       <td width="20%"><div class="header_td">Enabled</div></td>
     </tr>
@@ -166,7 +177,7 @@
 <div id="newProjectNameDialog" class="modal_dialog"><div class="modal_dialog_container"><div class="modal_dialog_content">
   <center>
   <h3 style="margin-top: 0px" id="newProjectNameDialogTitle"></h3><br>
-  Op Mode Name:
+  OpMode Name:
   <input type="text" id="newProjectName" style="width: 50ch"><br>
   <div id="newProjectSamplesArea"><br><br>
     Sample:
@@ -200,8 +211,8 @@
 
 <div id="deleteProjectsDialog" class="modal_dialog"><div class="modal_dialog_container"><div class="modal_dialog_content">
   <center>
-  <h3 style="margin-top: 0px">Delete Selected Op Modes</h3><br>
-  Are you sure you want to delete these Op Modes?
+  <h3 style="margin-top: 0px">Delete Selected OpModes</h3><br>
+  Are you sure you want to delete these OpModes?
   <table id="deleteProjectsTable">
   </table>
   <table width="100%">

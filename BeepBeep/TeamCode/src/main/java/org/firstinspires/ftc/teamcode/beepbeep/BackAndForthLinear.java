@@ -28,7 +28,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Config
-@TeleOp(group = "drive")
+@TeleOp(group = "dev")
 public class BackAndForthLinear extends LinearOpMode {
 
     // Target positions and heading
@@ -57,6 +57,7 @@ public class BackAndForthLinear extends LinearOpMode {
         double control_signal_heading = 0;
         double powX = 0;
         double powY = 0;
+        double val = 1;
 
         waitForStart();
 

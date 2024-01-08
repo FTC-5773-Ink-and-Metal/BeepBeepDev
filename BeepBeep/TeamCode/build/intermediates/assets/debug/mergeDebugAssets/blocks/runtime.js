@@ -56,8 +56,12 @@ function telemetryAddTextData(key, data) {
     case 'object':
       if (data instanceof Array) {
         telemetry.addTextData(key, String(data));
-      } else {
+      } else if (Object.keys(data).length == 0) {
+        // This is a Java object.
         telemetry.addObjectData(key, data);
+      } else {
+        // This is a JavaScript object.
+        telemetry.addTextData(key, JSON.stringify(data));
       }
       break;
     default:
@@ -181,4 +185,15 @@ function listIsEmpty(miscIdentifierForJavaScript, o) {
 
   // Otherwise, pass o to the Java helper function.
   return miscIdentifierForJavaScript.listIsEmpty(o);
+}
+
+function nullOrJson(s) {
+  if (typeof s == 'string') {
+    return JSON.parse(s);
+  }
+  return null;
+}
+
+function evalIfTruthy(o, code, otherwise) {
+  return o ? eval(code) : otherwise;
 }
