@@ -1,18 +1,6 @@
 package org.firstinspires.ftc.teamcode.beepbeep;
 
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_heading;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_x;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kd_y;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_heading;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_x;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Ki_y;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_heading;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_x;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.Kp_y;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kS;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.kV;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxAccel;
-import static org.firstinspires.ftc.teamcode.beepbeep.DriveConstants.maxVel;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.*;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;

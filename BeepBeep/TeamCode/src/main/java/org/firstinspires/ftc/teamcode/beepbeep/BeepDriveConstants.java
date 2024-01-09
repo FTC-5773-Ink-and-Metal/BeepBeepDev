@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.beepbeep;
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-public class DriveConstants {
+public class BeepDriveConstants {
     public static double Kp_x = 0.03;
     public static double Ki_x = 0.0;
     public static double Kd_x = 0.0;
@@ -28,6 +28,13 @@ public class DriveConstants {
     public static double kA_y = 0.0013;
     public static double kS_y = 0.00002;
 
+    public static double kV_ang = 0.013;
+    public static double kA_ang = 0.0013;
+    public static double kS_ang = 0.00002;
+
     public static double maxAccel = 30;
     public static double maxVel = 30;
+
+    public static double maxAngAccel = Math.toRadians(180);
+    public static double maxAngVel = Math.toRadians(180);
 }
