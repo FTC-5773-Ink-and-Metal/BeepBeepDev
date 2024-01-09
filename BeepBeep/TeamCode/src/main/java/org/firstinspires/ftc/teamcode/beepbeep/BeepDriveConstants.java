@@ -12,7 +12,7 @@ public class BeepDriveConstants {
     public static double Ki_y = 0.0;
     public static double Kd_y = 0.0;
 
-    public static double Kp_heading = 0.23;
+    public static double Kp_heading = 0.005;
     public static double Ki_heading = 0.0;
     public static double Kd_heading = 0.0;
 
@@ -28,9 +28,9 @@ public class BeepDriveConstants {
     public static double kA_y = 0.0013;
     public static double kS_y = 0.00002;
 
-    public static double kV_ang = 0.013;
-    public static double kA_ang = 0.0013;
-    public static double kS_ang = 0.00002;
+    public static double kV_ang = 0.244;
+    public static double kA_ang = 0.0023;
+    public static double kS_ang = 0.0;
 
     public static double maxAccel = 30;
     public static double maxVel = 30;
