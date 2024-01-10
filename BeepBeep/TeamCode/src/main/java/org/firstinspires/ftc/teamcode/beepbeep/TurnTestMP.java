@@ -60,13 +60,13 @@ public class TurnTestMP extends LinearOpMode {
             double powAng = motionMultiplier * (vel * kV_ang + accel * kA_ang);
             powAng = powAng + kS_ang * powAng/Math.abs(powAng);
 
-            control_signal_x = pid_x.calculate(desired_x, poseEstimate.getX());
-            control_signal_y = pid_y.calculate(desired_y, poseEstimate.getY());
-            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading())) + powAng;
+//            control_signal_x = pid_x.calculate(desired_x, poseEstimate.getX());
+//            control_signal_y = pid_y.calculate(desired_y, poseEstimate.getY());
+            control_signal_heading = pid_heading.calculate(angleWrap(instantTargetPosition), angleWrap(poseEstimate.getHeading())) + powAng;
 
             Vector2d input = new Vector2d(
-                    control_signal_x,
-                    control_signal_y
+                    0,
+                    0
             ).rotated(-poseEstimate.getHeading());
 
             drive.setWeightedDrivePower(

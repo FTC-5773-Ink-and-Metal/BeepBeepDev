@@ -66,8 +66,8 @@ public class LinearTest extends LinearOpMode {
             double yTargetVel = vel * Math.sin(path_angle);
             double yTargetAccel = accel * Math.sin(path_angle);
 
-            double powX = motionMultiplier * (xTargetVel * kV + xTargetAccel * kA);
-            double powY = motionMultiplier * (yTargetVel * kV + yTargetAccel * kA);
+            double powX = motionMultiplier * (xTargetVel * kV_x + xTargetAccel * kA);
+            double powY = motionMultiplier * (yTargetVel * kV_y + yTargetAccel * kA);
 
             powX = powX + kS * powX/Math.abs(powX);
             powY = powY + kS * powY/Math.abs(powY);
