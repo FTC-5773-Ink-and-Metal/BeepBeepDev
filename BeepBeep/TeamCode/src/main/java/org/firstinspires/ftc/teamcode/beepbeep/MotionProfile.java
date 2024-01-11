@@ -119,4 +119,14 @@ public class MotionProfile {
     public double getTotalDistance() {
         return 2 * accelerationDistance + maxVelocity * cruiseDt;
     }
+
+    public boolean isFinished(double elapsedTime) {
+        // Check if we're still in the motion profile
+        double entireDt = accelerationDt + cruiseDt + deaccelerationDt;
+        if (elapsedTime > entireDt) {
+            return true; // We have completed the motion profile, so velocity is 0.
+        }
+
+        return false;
+    }
 }

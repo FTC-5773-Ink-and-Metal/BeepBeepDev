@@ -14,9 +14,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+import java.util.Objects;
+
 @Config
 @TeleOp(group = "dev")
-public class BackAndForthLinear extends LinearOpMode {
+public class BeepFeedforwardTuner extends LinearOpMode {
 
     // Target positions and heading
     public static double desired_x = 40;
@@ -35,9 +37,8 @@ public class BackAndForthLinear extends LinearOpMode {
         drive.setPoseEstimate(setPose);
 
         // Variables for PID control
-        PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
-        PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
-        PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
+//        PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
+//        PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
 
         double control_signal_x = 0;
         double control_signal_y = 0;
@@ -58,8 +59,6 @@ public class BackAndForthLinear extends LinearOpMode {
         timer.time();
 
         while (opModeIsActive() && !isStopRequested()) {
-            double motionMultiplier = val;
-
             double instantTargetPosition = motionProfile.getPosition(timer.time());
             double vel = motionProfile.getVelocity(timer.time());
             double accel = motionProfile.getAcceleration(timer.time());
@@ -72,32 +71,28 @@ public class BackAndForthLinear extends LinearOpMode {
             double yTargetVel = vel * Math.sin(path_angle);
             double yTargetAccel = accel * Math.sin(path_angle);
 
-            powX = motionMultiplier * (xTargetVel * kV + xTargetAccel * kA);
-            powY = motionMultiplier * (yTargetVel * kV + yTargetAccel * kA);
+            powX = (xTargetVel * kV_x + xTargetAccel * kA_x);
+            powY = (yTargetVel * kV_y + yTargetAccel * kA_y);
 
-            powX = powX + kS * powX / Math.abs(powX);
-            powY = powY + kS * powY / Math.abs(powY);
+            powX = (powX + kS_x*powX/Math.abs(powX));
+            powY = (powY + kS_x*powY/Math.abs(powY));
 
-            if (Double.isNaN(powX)) {
+            if (motionProfile.isFinished(timer.time())) {
                 val = val * -1;
+                desired_x = val * desired_x;
                 path_distance = Math.sqrt(Math.pow(desired_x, 2) + Math.pow(desired_y, 2));
-                path_angle = Math.atan2(desired_y, desired_x * val);
+                path_angle = Math.atan2(desired_y, desired_x);
                 motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
 
                 timer.reset();
                 timer.time();
             }
 
-            if (Double.isNaN(powY)) {
-                powY = 0;
-                yTargetPos = desired_y;
-            }
-
             Pose2d poseEstimate = drive.getPoseEstimate();
 
-            control_signal_x = pid_x.calculate(xTargetPos, poseEstimate.getX()) + powX;
-            control_signal_y = pid_y.calculate(yTargetPos, poseEstimate.getY()) + powY;
-            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
+            control_signal_x = powX;
+            control_signal_y = powY;
+//            control_signal_heading = pid_heading.calculate((Math.toRadians(desired_heading)), (poseEstimate.getHeading()));
 
             Vector2d input = new Vector2d(
                     control_signal_x,
@@ -108,20 +103,28 @@ public class BackAndForthLinear extends LinearOpMode {
                     new Pose2d(
                             input.getX(),
                             input.getY(),
-                            control_signal_heading
+                            0
                     )
             );
 
             drive.update();
 
+            Pose2d poseVelo = Objects.requireNonNull(drive.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+            double currentVelo = poseVelo.getX();
+
+            // update telemetry
+            telemetry.addData("targetVelocity", val*motionProfile.getVelocity(timer.time()));
+            telemetry.addData("measuredVelocity", currentVelo);
+            telemetry.addData("error", val*motionProfile.getVelocity(timer.time()) - currentVelo);
+
             // Print pose to telemetry
-            telemetry.addData("x", poseEstimate.getX());
-            telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", poseEstimate.getHeading());
-            telemetry.addData("x error", xTargetPos - poseEstimate.getX());
-            telemetry.addData("y error", yTargetPos - poseEstimate.getY());
-            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
-            telemetry.addData("path position", instantTargetPosition);
+//            telemetry.addData("x", poseEstimate.getX());
+//            telemetry.addData("y", poseEstimate.getY());
+//            telemetry.addData("heading", poseEstimate.getHeading());
+//            telemetry.addData("x error", xTargetPos - poseEstimate.getX());
+//            telemetry.addData("y error", yTargetPos - poseEstimate.getY());
+//            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
+//            telemetry.addData("path position", instantTargetPosition);
             telemetry.update();
         }
     }

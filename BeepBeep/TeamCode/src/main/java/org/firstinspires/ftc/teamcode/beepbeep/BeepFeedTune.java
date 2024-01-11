@@ -1,6 +1,20 @@
 package org.firstinspires.ftc.teamcode.beepbeep;
 
-import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.*;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kd_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kd_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kd_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAccel;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxVel;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -14,13 +28,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+import java.util.Objects;
+
 @Config
 @TeleOp(group = "dev")
-public class LinearTest extends LinearOpMode {
+public class BeepFeedTune extends LinearOpMode {
 
     // Target positions and heading
-    public static double desired_x = 40;
-    public static double desired_y = 40;
+    public static double desired_x = 60;
+    public static double desired_y = 0;
     public static double desired_heading = 0;
 
     @Override
@@ -31,19 +47,19 @@ public class LinearTest extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
         drive.setPoseEstimate(new Pose2d(0, 0, 0));
-
-        // Variables for PID control
-        PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
-        PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
-        PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
+        double x_dist = desired_x;
 
         double control_signal_x = 0;
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
+        double powX = 0, powY = 0;
+
         double path_distance = Math.sqrt(Math.pow(desired_x, 2) + Math.pow(desired_y, 2));
         double path_angle = Math.atan2(desired_y, desired_x);
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
+
+        int val = 1;
 
         waitForStart();
 
@@ -52,8 +68,19 @@ public class LinearTest extends LinearOpMode {
         timer.time();
 
         while (opModeIsActive() && !isStopRequested()) {
-            double motionMultiplier = 1;
+            if (motionProfile.isFinished(timer.time())) {
+                powX = 0;
+                powY = 0;
+                val *= -1;
 
+                desired_x = desired_x * val;
+                path_angle = Math.atan2(desired_y, desired_x);
+                motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
+
+                timer.reset();
+                
+                telemetry.addData("MP Status", "Finished");
+            }
             double instantTargetPosition = motionProfile.getPosition(timer.time());
 
             if (motionProfile.isFinished(timer.time())) {
@@ -70,51 +97,55 @@ public class LinearTest extends LinearOpMode {
             double yTargetVel = vel * Math.sin(path_angle);
             double yTargetAccel = accel * Math.sin(path_angle);
 
-            double powX = motionMultiplier * (xTargetVel * kV_x + xTargetAccel * kA);
-            double powY = motionMultiplier * (yTargetVel * kV_y + yTargetAccel * kA);
+            powX = (xTargetVel * kV_x + xTargetAccel * kA);
+            powY = (yTargetVel * kV_y + yTargetAccel * kA);
 
             powX = powX + kS * powX/Math.abs(powX);
             powY = powY + kS * powY/Math.abs(powY);
+            telemetry.addData("MP Status", "Not Finished");
 
-            if (Double.isNaN(powX)) {
+            if (motionProfile.isFinished(timer.time())) {
                 powX = 0;
-                xTargetPos = desired_x;
-            }
-
-            if (Double.isNaN(powY)) {
                 powY = 0;
-                yTargetPos = desired_y;
+                val *= -1;
+
+                desired_x = desired_x * val;
+                path_angle = Math.atan2(desired_y, desired_x);
+                motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
+
+                timer.reset();
+                telemetry.addData("MP Status", "Finished");
             }
 
             Pose2d poseEstimate = drive.getPoseEstimate();
 
-            control_signal_x = pid_x.calculate(xTargetPos, poseEstimate.getX()) + powX;
-            control_signal_y = pid_y.calculate(yTargetPos, poseEstimate.getY()) + powY;
-            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
+            control_signal_x = powX;
+            control_signal_y = powY;
+//            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
 
             Vector2d input = new Vector2d(
                     control_signal_x,
-                    control_signal_y
+                    0
             ).rotated(-poseEstimate.getHeading());
 
             drive.setWeightedDrivePower(
                     new Pose2d(
                             input.getX(),
                             input.getY(),
-                            control_signal_heading
+                            0
                     )
             );
 
             drive.update();
 
             // Print pose to telemetry
-            telemetry.addData("x", poseEstimate.getX());
-            telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", poseEstimate.getHeading());
-            telemetry.addData("x error", xTargetPos - poseEstimate.getX());
-            telemetry.addData("y error", yTargetPos - poseEstimate.getY());
-            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
-            telemetry.addData("path position", instantTargetPosition);
+            Pose2d poseVelo = Objects.requireNonNull(drive.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+            double currentVelo = poseVelo.getX();
+
+            // update telemetry
+            telemetry.addData("targetVelocity", val*motionProfile.getVelocity(timer.time()));
+            telemetry.addData("measuredVelocity", currentVelo);
+            telemetry.addData("error", val*motionProfile.getVelocity(timer.time()) - currentVelo);
             telemetry.update();
         }
     }
