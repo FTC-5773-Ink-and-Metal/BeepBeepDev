@@ -116,6 +116,8 @@ public class MotionProfile {
         }
     }
 
+    public double getTotalTime() {return accelerationDt + cruiseDt + deaccelerationDt;}
+
     public double getTotalDistance() {
         return 2 * accelerationDistance + maxVelocity * cruiseDt;
     }
