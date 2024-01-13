@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 
 @Config
 @TeleOp(group = "dev")
@@ -60,13 +60,18 @@ public class TurnTestMP extends LinearOpMode {
             double powAng = motionMultiplier * (vel * kV_ang + accel * kA_ang);
             powAng = powAng + kS_ang * powAng/Math.abs(powAng);
 
-            control_signal_x = pid_x.calculate(desired_x, poseEstimate.getX());
-            control_signal_y = pid_y.calculate(desired_y, poseEstimate.getY());
-            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading())) + powAng;
+            if (motionProfile.isFinished(timer.time())) {
+                instantTargetPosition = desired_heading;
+                powAng = 0;
+            }
+
+//            control_signal_x = pid_x.calculate(desired_x, poseEstimate.getX());
+//            control_signal_y = pid_y.calculate(desired_y, poseEstimate.getY());
+            control_signal_heading = pid_heading.calculate((instantTargetPosition), (poseEstimate.getHeading())) + powAng;
 
             Vector2d input = new Vector2d(
-                    control_signal_x,
-                    control_signal_y
+                    0,
+                    0
             ).rotated(-poseEstimate.getHeading());
 
             drive.setWeightedDrivePower(

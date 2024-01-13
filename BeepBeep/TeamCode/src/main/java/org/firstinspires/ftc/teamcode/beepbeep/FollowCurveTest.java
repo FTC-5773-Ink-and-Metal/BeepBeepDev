@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 
 @Config
 @TeleOp(group = "dev")
@@ -21,14 +21,14 @@ public class FollowCurveTest extends LinearOpMode {
     // 0, 1, 30, 30
     public static double p1X = 0.0;
     public static double p2X = 1.0;
-    public static double p3X = 30.0;
+    public static double p3X = 15;
     public static double p4X = 30.0;
 
     // 0, 24, 1, 30
     public static double p1Y = 0.0;
-    public static double p2Y = 24.0;
-    public static double p3Y = 1.0;
-    public static double p4Y = 30.0;
+    public static double p2Y = 30;
+    public static double p3Y = 0;
+    public static double p4Y = 15;
 
     public static double desired_heading = 0;
 
@@ -57,6 +57,7 @@ public class FollowCurveTest extends LinearOpMode {
         double curve_length = bezier_calc.bezier_length(bezier_x, bezier_y);
 
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, curve_length);
+        MotionProfile motionProfileAng = new MotionProfile(maxAngAccel, maxAngVel, Math.toRadians(desired_heading));
 
         waitForStart();
 
@@ -67,12 +68,19 @@ public class FollowCurveTest extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             Pose2d poseEstimate = drive.getPoseEstimate();
 
+            // Angle
+            double instantAngPosition = motionProfileAng.getPosition(timer.time());
+            double angVel = motionProfileAng.getVelocity(timer.time());
+            double angAccel = motionProfileAng.getAcceleration(timer.time());
+
+            double powAng = angVel * kV_ang + angAccel * kA_ang;
+            powAng = powAng + kS_ang * powAng/Math.abs(powAng);
+
             // Position
             instantTargetPosition = motionProfile.getPosition(timer.time());
             u = bezier_calc.bezier_param_of_disp(instantTargetPosition, bezier_calc.get_sums(), bezier_calc.get_upsilon());
             control_signal_x = pid_x.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
             control_signal_y = pid_y.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
-            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
 
             // Velocity
             // s′(t)u′(s(t))x′(u(s(t)))
@@ -95,6 +103,11 @@ public class FollowCurveTest extends LinearOpMode {
             // Combined
             totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x;
             totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
+            control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading())) + powAng;
+
+            if (Double.isNaN(control_signal_heading)) {
+                control_signal_heading = 0;
+            }
 
             Vector2d input = new Vector2d(
                     totalX,
@@ -119,6 +132,7 @@ public class FollowCurveTest extends LinearOpMode {
             telemetry.addData("y error", bezier_y.bezier_get(u) - poseEstimate.getY());
 
             telemetry.addData("heading", poseEstimate.getHeading());
+            telemetry.addData("control signal heading", control_signal_heading);
             telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
 
             telemetry.addData("instantTargetPosition", instantTargetPosition);

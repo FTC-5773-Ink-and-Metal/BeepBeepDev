@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 
 @Config
 @TeleOp(group = "dev")
@@ -55,6 +55,10 @@ public class LinearTest extends LinearOpMode {
             double motionMultiplier = 1;
 
             double instantTargetPosition = motionProfile.getPosition(timer.time());
+
+            if (motionProfile.isFinished(timer.time())) {
+                instantTargetPosition = path_distance;
+            }
             double vel = motionProfile.getVelocity(timer.time());
             double accel = motionProfile.getAcceleration(timer.time());
 
@@ -66,8 +70,8 @@ public class LinearTest extends LinearOpMode {
             double yTargetVel = vel * Math.sin(path_angle);
             double yTargetAccel = accel * Math.sin(path_angle);
 
-            double powX = motionMultiplier * (xTargetVel * kV + xTargetAccel * kA);
-            double powY = motionMultiplier * (yTargetVel * kV + yTargetAccel * kA);
+            double powX = motionMultiplier * (xTargetVel * kV_x + xTargetAccel * kA);
+            double powY = motionMultiplier * (yTargetVel * kV_y + yTargetAccel * kA);
 
             powX = powX + kS * powX/Math.abs(powX);
             powY = powY + kS * powY/Math.abs(powY);
