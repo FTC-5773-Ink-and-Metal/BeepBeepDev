@@ -60,6 +60,7 @@ public class BeepFeedTune extends LinearOpMode {
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
 
         int val = 1;
+        int counter = 0;
 
         waitForStart();
 
@@ -69,8 +70,7 @@ public class BeepFeedTune extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             if (motionProfile.isFinished(timer.time())) {
-                powX = 0;
-                powY = 0;
+                counter++;
                 val *= -1;
 
                 desired_x = desired_x * val;
@@ -78,14 +78,13 @@ public class BeepFeedTune extends LinearOpMode {
                 motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
 
                 timer.reset();
-                
-                telemetry.addData("MP Status", "Finished");
             }
+
             double instantTargetPosition = motionProfile.getPosition(timer.time());
 
-            if (motionProfile.isFinished(timer.time())) {
-                instantTargetPosition = path_distance;
-            }
+//            if (motionProfile.isFinished(timer.time())) {
+//                instantTargetPosition = path_distance;
+//            }
             double vel = motionProfile.getVelocity(timer.time());
             double accel = motionProfile.getAcceleration(timer.time());
 
@@ -102,20 +101,7 @@ public class BeepFeedTune extends LinearOpMode {
 
             powX = powX + kS * powX/Math.abs(powX);
             powY = powY + kS * powY/Math.abs(powY);
-            telemetry.addData("MP Status", "Not Finished");
-
-            if (motionProfile.isFinished(timer.time())) {
-                powX = 0;
-                powY = 0;
-                val *= -1;
-
-                desired_x = desired_x * val;
-                path_angle = Math.atan2(desired_y, desired_x);
-                motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
-
-                timer.reset();
-                telemetry.addData("MP Status", "Finished");
-            }
+            telemetry.addData("# MP Finished", counter);
 
             Pose2d poseEstimate = drive.getPoseEstimate();
 
@@ -146,6 +132,7 @@ public class BeepFeedTune extends LinearOpMode {
             telemetry.addData("targetVelocity", val*motionProfile.getVelocity(timer.time()));
             telemetry.addData("measuredVelocity", currentVelo);
             telemetry.addData("error", val*motionProfile.getVelocity(timer.time()) - currentVelo);
+            telemetry.addData("desired x", desired_x);
             telemetry.update();
         }
     }

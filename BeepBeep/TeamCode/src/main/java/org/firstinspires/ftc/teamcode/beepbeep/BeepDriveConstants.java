@@ -16,20 +16,20 @@ public class BeepDriveConstants {
     public static double Ki_heading = 0.0;
     public static double Kd_heading = 0.0;
 
-    public static double kV = 0.0157;
-    public static double kA = 0.003554;
-    public static double kS = 0.00015;
+    public static double kV = 0.0;
+    public static double kA = 0.0;
+    public static double kS = 0.0;
 
-    public static double kV_x = 0.1;
+    public static double kV_x = 0.0;
     public static double kA_x = 0;
     public static double kS_x = 0;
 //    public static double kV_x = 0.0157;
 //    public static double kA_x = 0.003554;
 //    public static double kS_x = 0.00015;
 
-    public static double kV_y = 0.0257;
-    public static double kA_y = 0.003554;
-    public static double kS_y = 0.00015;
+    public static double kV_y = 0.0;
+    public static double kA_y = 0.0;
+    public static double kS_y = 0.0;
 
     public static double kV_ang = 0.265;
     public static double kA_ang = 0.0023;
