@@ -27,6 +27,22 @@ public class BezierCurve {
     public double bezier_deriv2(double u) {
         return -6*a*u + 6*a + 18*b*u - 12*b - 18*c*u + 6*c + 6*d*u;
     }
+
+    public double getA() {
+        return a;
+    }
+
+    public double getB() {
+        return b;
+    }
+
+    public double getC() {
+        return c;
+    }
+
+    public double getD() {
+        return d;
+    }
 }
 
 /**

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 
 @Config
@@ -21,8 +22,21 @@ public class LinearTest extends LinearOpMode {
     // Target positions and heading
     public static double desired_x = 40;
     public static double desired_y = 40;
-    public static double desired_heading = 0;
+    public static double deg_desired_heading = 0;
 
+    @Override
+    public void runOpMode() throws InterruptedException {
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
+
+        Drive drive = new Drive(hardwareMap, telemetry);
+
+        waitForStart();
+
+        drive.followTrajectory(desired_x, desired_y, Math.toRadians(deg_desired_heading));
+    }
+
+    /*
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize SampleMecanumDrive
@@ -41,7 +55,7 @@ public class LinearTest extends LinearOpMode {
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
-        double path_distance = Math.sqrt(Math.pow(desired_x, 2) + Math.pow(desired_y, 2));
+        double path_distance = Math.sqrt(Math.pow(desired_x-0, 2) + Math.pow(desired_y-0, 2));
         double path_angle = Math.atan2(desired_y, desired_x);
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
 
@@ -130,5 +144,6 @@ public class LinearTest extends LinearOpMode {
         // keep in mind that the result is in radians
         return radians;
     }
+     */
 
 }

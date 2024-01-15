@@ -4,6 +4,10 @@ package org.firstinspires.ftc.teamcode.beepbeeplib.util;
 // drive.followPath(path1)
 // trajFollower.followBezier(Bezier)
 
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_x;
@@ -11,21 +15,130 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAccel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxVel;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 
+import java.util.Objects;
+
 public class TrajFollower {
     Drive dt;
+    Telemetry telemetry;
 
 
-    public TrajFollower(Drive dt) {
+    public TrajFollower(Drive dt, Telemetry telemetry) {
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        this.telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         this.dt = dt;
+    }
+
+    public void followLinear(double error, double desired_x, double desired_y, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
+        double control_signal_x = 0;
+        double control_signal_y = 0;
+        double control_signal_heading = 0;
+
+        Pose2d poseEstimate = dt.getPoseEstimate();
+        Pose2d desiredPose = new Pose2d(desired_x, desired_y, desired_heading);
+
+        // desired_x = 10, desired_y = 10
+        // poseX = 30, poseY = 40
+        // desX - posX = -20; desY - posY = -30
+
+        double path_distance = Math.sqrt(Math.pow(desired_x-poseEstimate.getX(), 2) + Math.pow(desired_y-poseEstimate.getY(), 2));
+        double path_angle = Math.atan2(desired_y - poseEstimate.getY(), desired_x - poseEstimate.getX());
+        path_angle = angleWrap(path_angle);
+        MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
+
+        telemetry.addData("Path Distance", path_distance);
+        telemetry.addData("Path Angle", path_angle);
+        telemetry.update();
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.time();
+
+        // calcError --> true when finished
+        // motion prof --> true when finished
+        int direction = 1;
+        // !calcError(error, poseEstimate, desiredPose) &&
+
+        while ((motionProfile.getTotalTime() >= timer.time())) {
+            double motionMultiplier = 1;
+            direction *= -1;
+
+            double instantTargetPosition = motionProfile.getPosition(timer.time());
+
+            if (motionProfile.isFinished(timer.time())) {
+                instantTargetPosition = path_distance;
+            }
+            double vel = motionProfile.getVelocity(timer.time());
+            double accel = motionProfile.getAcceleration(timer.time());
+
+            double xTargetPos = instantTargetPosition * Math.cos(path_angle);
+            double xTargetVel = vel * Math.cos(path_angle);
+            double xTargetAccel = accel * Math.cos(path_angle);
+
+            double yTargetPos = instantTargetPosition * Math.sin(path_angle);
+            double yTargetVel = vel * Math.sin(path_angle);
+            double yTargetAccel = accel * Math.sin(path_angle);
+
+            double powX = motionMultiplier * (xTargetVel * kV_x + xTargetAccel * kA_x);
+            double powY = motionMultiplier * (yTargetVel * kV_y + yTargetAccel * kA_y);
+
+            powX = powX + kS_x * powX/Math.abs(powX);
+            powY = powY + kS_y * powY/Math.abs(powY);
+
+            if (Double.isNaN(powX)) {
+                powX = 0;
+                xTargetPos = desired_x;
+            }
+
+            if (Double.isNaN(powY)) {
+                powY = 0;
+                yTargetPos = desired_y;
+            }
+
+            poseEstimate = dt.getPoseEstimate();
+
+            control_signal_x = px.calculate(xTargetPos, poseEstimate.getX()) + powX;
+            control_signal_y = py.calculate(yTargetPos, poseEstimate.getY()) + powY;
+            control_signal_heading = pheading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
+
+            Vector2d input = new Vector2d(
+                    control_signal_x,
+                    control_signal_y
+            ).rotated(-poseEstimate.getHeading());
+
+            dt.setWeightedDrivePower(
+                    new Pose2d(
+                            input.getX(),
+                            input.getY(),
+                            control_signal_heading
+                    )
+            );
+
+            dt.update();
+
+            // Print pose to telemetry
+            Pose2d poseVelo = Objects.requireNonNull(dt.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+            double currentVeloX = poseVelo.getX();
+            double currentVeloY = poseVelo.getY();
+
+            // update telemetry
+            telemetry.addData("targetVelocityX", xTargetVel);
+            telemetry.addData("targetVelocityY", yTargetVel);
+            telemetry.addData("measuredVelocityX", currentVeloX);
+            telemetry.addData("measuredVelocityY", currentVeloY);
+//            telemetry.addData("error", direction*motionProfile.getVelocity(timer.time()) - currentVelo);
+            telemetry.update();
+        }
     }
 
     public void followBezier(double error, BezierCurve bezier_x, BezierCurve bezier_y, PIDController px, PIDController py, PIDController pheading, double desired_heading) {
@@ -45,8 +158,9 @@ public class TrajFollower {
 
 //        while(timer.time() >= motionProfile.getTotalTime() && )
         Pose2d poseEstimate = dt.getPoseEstimate();
+        Pose2d desiredPose = new Pose2d(bezier_x.getD(), bezier_y.getD(), desired_heading);
 
-        while(calcError(error, poseEstimate, poseEstimate) || motionProfile.getTotalTime() >= timer.time()) {
+        while(!calcError(error, poseEstimate, desiredPose) && motionProfile.getTotalTime() >= timer.time()) {
             poseEstimate = dt.getPoseEstimate();
 
             // Position

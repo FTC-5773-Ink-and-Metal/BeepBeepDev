@@ -20,7 +20,7 @@ public class FollowCurveTest extends LinearOpMode {
 
     // 0, 1, 30, 30
     public static double p1X = 0.0;
-    public static double p2X = 1.0;
+    public static double p2X = 0.0;
     public static double p3X = 15;
     public static double p4X = 30.0;
 

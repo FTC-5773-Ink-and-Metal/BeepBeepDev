@@ -13,6 +13,7 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.PIDController;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
@@ -23,15 +24,23 @@ public class Drive extends SampleMecanumDrive {
     PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
     PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
     PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
-    public static double error = 1;
+    public static double error = 3;
+    Telemetry telemetry;
 
-    public Drive(HardwareMap hwMap) {
+    public Drive(HardwareMap hwMap, Telemetry telemetry) {
         super(hwMap);
+        this.telemetry = telemetry;
     }
 
     public void followTrajectory(BezierCurve bezier_x, BezierCurve bezier_y, double desired_heading) {
-        TrajFollower follower = new TrajFollower(this);
+        TrajFollower follower = new TrajFollower(this, telemetry);
 
         follower.followBezier(error, bezier_x, bezier_y, pid_x, pid_x, pid_heading, desired_heading);
+    }
+
+    public void followTrajectory(double x, double y, double desired_heading) {
+        TrajFollower follower = new TrajFollower(this, telemetry);
+
+        follower.followLinear(error, x, y, desired_heading, pid_x, pid_x, pid_heading);
     }
 }
