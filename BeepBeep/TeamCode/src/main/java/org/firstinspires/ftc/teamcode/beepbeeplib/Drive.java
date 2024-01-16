@@ -24,7 +24,7 @@ public class Drive extends SampleMecanumDrive {
     PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
     PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
     PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
-    public static double error = 3;
+    public static double error = 0.1;
     Telemetry telemetry;
 
     public Drive(HardwareMap hwMap, Telemetry telemetry) {

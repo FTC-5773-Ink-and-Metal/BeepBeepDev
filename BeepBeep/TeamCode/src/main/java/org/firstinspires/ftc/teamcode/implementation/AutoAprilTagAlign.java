@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeep.PIDController;
+import org.firstinspires.ftc.teamcode.beepbeep.Trajectory;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -118,62 +119,7 @@ public class AutoAprilTagAlign extends LinearOpMode {
             }
 
             if (goToTag) {
-                double motionMultiplier = 1;
 
-                double instantTargetPosition = motionProfile.getPosition(timer.time());
-                double vel = motionProfile.getVelocity(timer.time());
-                double accel = motionProfile.getAcceleration(timer.time());
-
-                if (instantTargetPosition >= path_distance) {
-                    goToTag = false;
-                    drive.setMotorPowers(0, 0, 0, 0);
-                    break;
-                }
-
-                double xTargetPos = instantTargetPosition * Math.cos(path_angle);
-                double xTargetVel = vel * Math.cos(path_angle);
-                double xTargetAccel = accel * Math.cos(path_angle);
-
-                double yTargetPos = instantTargetPosition * Math.sin(path_angle);
-                double yTargetVel = vel * Math.sin(path_angle);
-                double yTargetAccel = accel * Math.sin(path_angle);
-
-                double powX = motionMultiplier * (xTargetVel * kV + xTargetAccel * kA);
-                double powY = motionMultiplier * (yTargetVel * kV + yTargetAccel * kA);
-
-                powX = powX + kS * powX/Math.abs(powX);
-                powY = powY + kS * powY/Math.abs(powY);
-
-                if (Double.isNaN(powX)) {
-                    powX = 0;
-                    xTargetPos = desired_x;
-                }
-
-                if (Double.isNaN(powY)) {
-                    powY = 0;
-                    yTargetPos = desired_y;
-                }
-
-                Pose2d poseEstimate = drive.getPoseEstimate();
-
-                control_signal_x = pid_x.calculate(xTargetPos, poseEstimate.getX()) + powX;
-                control_signal_y = pid_y.calculate(yTargetPos, poseEstimate.getY()) + powY;
-                control_signal_heading = pid_heading.calculate(angleWrap(desired_heading), angleWrap(poseEstimate.getHeading()));
-
-                Vector2d input = new Vector2d(
-                        control_signal_x,
-                        control_signal_y
-                ).rotated(-poseEstimate.getHeading());
-
-                drive.setWeightedDrivePower(
-                        new Pose2d(
-                                input.getX(),
-                                input.getY(),
-                                control_signal_heading
-                        )
-                );
-
-                drive.update();
             }
 
             telemetry.update();

@@ -44,7 +44,7 @@ public class BeepLibTest extends LinearOpMode {
 
         telemetry.addData("Path Status", "Bezier Started");
         telemetry.update();
-        drive.followTrajectory(bezier_x, bezier_y, desired_heading);
+//        drive.followTrajectory(bezier_x, bezier_y, desired_heading);
         telemetry.addData("Path Status", "Bezier Finished, Linear Started");
         telemetry.update();
         drive.followTrajectory(linearX, linearY, desired_heading);

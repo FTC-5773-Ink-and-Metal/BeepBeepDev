@@ -4,6 +4,15 @@ package org.firstinspires.ftc.teamcode.beepbeeplib.util;
 // drive.followPath(path1)
 // trajFollower.followBezier(Bezier)
 
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kd_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kd_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kd_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_heading;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_y;
@@ -40,13 +49,17 @@ public class TrajFollower {
         this.dt = dt;
     }
 
+    public void turn(double error_deg, double desired_heading_deg, PIDController px, PIDController py, PIDController pheading) {
+
+    }
+
     public void followLinear(double error, double desired_x, double desired_y, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
         double control_signal_x = 0;
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
         Pose2d poseEstimate = dt.getPoseEstimate();
-        Pose2d desiredPose = new Pose2d(desired_x, desired_y, desired_heading);
+        Pose2d desiredPose = new Pose2d(desired_x, desired_y, Math.toRadians(desired_heading));
 
         // desired_x = 10, desired_y = 10
         // poseX = 30, poseY = 40
@@ -68,10 +81,16 @@ public class TrajFollower {
         // motion prof --> true when finished
         int direction = 1;
         // !calcError(error, poseEstimate, desiredPose) &&
+        //  && (motionProfile.getTotalTime() >= timer.time())
 
-        while ((motionProfile.getTotalTime() >= timer.time())) {
+        while (!calcError(error, poseEstimate, desiredPose)) {
             double motionMultiplier = 1;
             direction *= -1;
+
+            // REMOVE when not tuning
+            px = new PIDController(Kp_x, Ki_x, Kd_x);
+            py = new PIDController(Kp_y, Ki_y, Kd_y);
+            pheading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
 
             double instantTargetPosition = motionProfile.getPosition(timer.time());
 
@@ -132,10 +151,17 @@ public class TrajFollower {
             double currentVeloY = poseVelo.getY();
 
             // update telemetry
+            telemetry.addData("x aboslute error",  desired_x- poseEstimate.getX());
+            telemetry.addData("y aboslute error",  desired_y- poseEstimate.getY());
+            telemetry.addData("xPredicted",  xTargetPos);
             telemetry.addData("targetVelocityX", xTargetVel);
             telemetry.addData("targetVelocityY", yTargetVel);
             telemetry.addData("measuredVelocityX", currentVeloX);
             telemetry.addData("measuredVelocityY", currentVeloY);
+            telemetry.addData("xPredicted",  xTargetPos);
+            telemetry.addData("xCurrent", poseEstimate.getX());
+            telemetry.addData("yError", yTargetPos - poseEstimate.getY());
+            telemetry.addData("HeadingError", desired_heading - poseEstimate.getHeading());
 //            telemetry.addData("error", direction*motionProfile.getVelocity(timer.time()) - currentVelo);
             telemetry.update();
         }
@@ -213,6 +239,8 @@ public class TrajFollower {
         double x = Math.pow(desiredPose.getX() - curPose.getX(), 2);
         double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
         double dist = Math.sqrt(x+y);
+
+        double headingError = desiredPose.getHeading() - curPose.getHeading();
 
         if(dist <= err) return true;
 

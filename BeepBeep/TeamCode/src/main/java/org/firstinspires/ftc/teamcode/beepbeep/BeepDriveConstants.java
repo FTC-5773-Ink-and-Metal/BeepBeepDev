@@ -4,15 +4,15 @@ import com.acmerobotics.dashboard.config.Config;
 
 @Config
 public class BeepDriveConstants {
-    public static double Kp_x = 0.03;
+    public static double Kp_x = 0.2;
     public static double Ki_x = 0.0;
     public static double Kd_x = 0.0;
 
-    public static double Kp_y = 0.0486;
+    public static double Kp_y = 0.3;
     public static double Ki_y = 0.0;
     public static double Kd_y = 0.0;
 
-    public static double Kp_heading = 0.009;
+    public static double Kp_heading = 1.5;
     public static double Ki_heading = 0.0;
     public static double Kd_heading = 0.0;
 
