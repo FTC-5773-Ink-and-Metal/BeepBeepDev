@@ -21,7 +21,7 @@ public class TurnTestMP extends LinearOpMode {
     // Target positions and heading
     public double desired_x = 0;
     public double desired_y = 0;
-    public static double desired_heading = Math.toRadians(180);
+    public static double desired_heading = 180;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -29,6 +29,8 @@ public class TurnTestMP extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
+
+        desired_heading = Math.toRadians(desired_heading);
 
         drive.setPoseEstimate(new Pose2d(0, 0, 0));
 
@@ -41,7 +43,7 @@ public class TurnTestMP extends LinearOpMode {
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
-        MotionProfile motionProfile = new MotionProfile(maxAngAccel, maxAngVel, desired_heading);
+        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, desired_heading);
 
         waitForStart();
 
@@ -53,21 +55,21 @@ public class TurnTestMP extends LinearOpMode {
             Pose2d poseEstimate = drive.getPoseEstimate();
             int motionMultiplier = 1;
 
-            double instantTargetPosition = motionProfile.getPosition(timer.time());
-            double vel = motionProfile.getVelocity(timer.time());
-            double accel = motionProfile.getAcceleration(timer.time());
+            double instantTargetPositionHeading = motionProfileHeading.getPosition(timer.time());
+            double velHeading = motionProfileHeading.getVelocity(timer.time());
+            double accelHeading = motionProfileHeading.getAcceleration(timer.time());
 
-            double powAng = motionMultiplier * (vel * kV_ang + accel * kA_ang);
+            double powAng = motionMultiplier * (velHeading * kV_ang + accelHeading * kA_ang);
             powAng = powAng + kS_ang * powAng/Math.abs(powAng);
 
-            if (motionProfile.isFinished(timer.time())) {
-                instantTargetPosition = desired_heading;
+            if (motionProfileHeading.isFinished(timer.time())) {
+                instantTargetPositionHeading = desired_heading;
                 powAng = 0;
             }
 
             control_signal_x = pid_x.calculate(0, poseEstimate.getX());
             control_signal_y = pid_y.calculate(0, poseEstimate.getY());
-            control_signal_heading = pid_heading.calculate((instantTargetPosition), (poseEstimate.getHeading())) + powAng;
+            control_signal_heading = pid_heading.calculate((instantTargetPositionHeading), (poseEstimate.getHeading())) + powAng;
 
             Vector2d input = new Vector2d(
                     control_signal_x,
@@ -91,7 +93,7 @@ public class TurnTestMP extends LinearOpMode {
             telemetry.addData("x error", desired_x - poseEstimate.getX());
             telemetry.addData("y error", desired_y - poseEstimate.getY());
             telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
-            telemetry.addData("instant heading target", instantTargetPosition);
+            telemetry.addData("instant heading target", instantTargetPositionHeading);
             telemetry.update();
         }
     }

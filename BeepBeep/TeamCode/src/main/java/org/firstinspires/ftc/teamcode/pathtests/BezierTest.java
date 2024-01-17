@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.beepbeep;
+package org.firstinspires.ftc.teamcode.pathtests;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
+import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 
 @Config
@@ -39,6 +41,6 @@ public class BezierTest extends LinearOpMode {
 
         waitForStart();
 
-        drive.followTrajectory(bezier_x, bezier_y, desired_heading);
+        drive.followTrajectory(bezier_x, bezier_y, Math.toRadians(desired_heading));
     }
 }

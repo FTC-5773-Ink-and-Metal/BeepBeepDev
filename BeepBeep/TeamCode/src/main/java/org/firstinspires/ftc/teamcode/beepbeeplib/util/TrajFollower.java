@@ -14,14 +14,19 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_head
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_ang;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_ang;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_ang;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAccel;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngAccel;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngVel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxVel;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -49,8 +54,64 @@ public class TrajFollower {
         this.dt = dt;
     }
 
-    public void turn(double error_deg, double desired_heading_deg, PIDController px, PIDController py, PIDController pheading) {
+    public void turn(double error, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
+        double control_signal_x = 0;
+        double control_signal_y = 0;
+        double control_signal_heading = 0;
 
+        Pose2d poseEstimate = dt.getPoseEstimate();
+        Pose2d desiredPose = new Pose2d(poseEstimate.getX(), poseEstimate.getY(), desired_heading);
+        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, desired_heading);
+
+        Pose2d startPose = poseEstimate;
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.time();
+
+        while (!calcError(error, poseEstimate, desiredPose)) {
+            poseEstimate = dt.getPoseEstimate();
+            int motionMultiplier = 1;
+
+            double instantTargetPositionHeading = motionProfileHeading.getPosition(timer.time());
+            double velHeading = motionProfileHeading.getVelocity(timer.time());
+            double accelHeading = motionProfileHeading.getAcceleration(timer.time());
+
+            double powAng = motionMultiplier * (velHeading * kV_ang + accelHeading * kA_ang);
+            powAng = powAng + kS_ang * powAng/Math.abs(powAng);
+
+            if (motionProfileHeading.isFinished(timer.time())) {
+                instantTargetPositionHeading = desired_heading;
+                powAng = 0;
+            }
+
+            control_signal_x = px.calculate(0, poseEstimate.getX());
+            control_signal_y = py.calculate(0, poseEstimate.getY());
+            control_signal_heading = pheading.calculate((instantTargetPositionHeading), (poseEstimate.getHeading())) + powAng;
+
+            Vector2d input = new Vector2d(
+                    control_signal_x,
+                    control_signal_y
+            ).rotated(-poseEstimate.getHeading());
+
+            dt.setWeightedDrivePower(
+                    new Pose2d(
+                            input.getX(),
+                            input.getY(),
+                            control_signal_heading
+                    )
+            );
+
+            dt.update();
+
+            // Print pose to telemetry
+            telemetry.addData("x", poseEstimate.getX());
+            telemetry.addData("y", poseEstimate.getY());
+            telemetry.addData("heading", poseEstimate.getHeading());
+            telemetry.addData("x error", 0 - poseEstimate.getX());
+            telemetry.addData("y error", 0 - poseEstimate.getY());
+            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
+            telemetry.update();
+        }
     }
 
     public void followLinear(double error, double desired_x, double desired_y, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
@@ -59,7 +120,7 @@ public class TrajFollower {
         double control_signal_heading = 0;
 
         Pose2d poseEstimate = dt.getPoseEstimate();
-        Pose2d desiredPose = new Pose2d(desired_x, desired_y, Math.toRadians(desired_heading));
+        Pose2d desiredPose = new Pose2d(desired_x, desired_y, desired_heading);
 
         Pose2d startPose = poseEstimate;
 
@@ -134,7 +195,7 @@ public class TrajFollower {
 //            control_signal_y = py.calculate(desired_y, poseEstimate.getY());
 //            control_signal_x = powX;
 //            control_signal_y = powY;
-            control_signal_heading = pheading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
+            control_signal_heading = pheading.calculate(angleWrap(desired_heading), angleWrap(poseEstimate.getHeading()));
 
             Vector2d input = new Vector2d(
                     control_signal_x,
@@ -152,26 +213,28 @@ public class TrajFollower {
             dt.update();
 
             // Print pose to telemetry
-            Pose2d poseVelo = Objects.requireNonNull(dt.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
-            double currentVeloX = poseVelo.getX();
-            double currentVeloY = poseVelo.getY();
+//            Pose2d poseVelo = Objects.requireNonNull(dt.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+//            double currentVeloX = poseVelo.getX();
+//            double currentVeloY = poseVelo.getY();
 
             // update telemetry
-            telemetry.addData("target x", 0);
-            telemetry.addData("target y", 0);
-            telemetry.addData("start x", 0);
-            telemetry.addData("start y", 0);
-            telemetry.addData("x aboslute error",  desired_x- poseEstimate.getX());
-            telemetry.addData("y aboslute error",  desired_y- poseEstimate.getY());
-            telemetry.addData("xPredicted",  xTargetPos);
-            telemetry.addData("targetVelocityX", xTargetVel);
-            telemetry.addData("targetVelocityY", yTargetVel);
-            telemetry.addData("measuredVelocityX", currentVeloX);
-            telemetry.addData("measuredVelocityY", currentVeloY);
-            telemetry.addData("xPredicted",  xTargetPos);
-            telemetry.addData("xCurrent", poseEstimate.getX());
-            telemetry.addData("yError", yTargetPos - poseEstimate.getY());
-            telemetry.addData("HeadingError", desired_heading - poseEstimate.getHeading());
+            telemetry.addData("y error", desired_y - poseEstimate.getY());
+            telemetry.addData("x error", desired_x - poseEstimate.getX());
+//            telemetry.addData("target x", 0);
+//            telemetry.addData("target y", 0);
+//            telemetry.addData("start x", 0);
+//            telemetry.addData("start y", 0);
+//            telemetry.addData("x aboslute error",  desired_x- poseEstimate.getX());
+//            telemetry.addData("y aboslute error",  desired_y- poseEstimate.getY());
+//            telemetry.addData("xPredicted",  xTargetPos);
+//            telemetry.addData("targetVelocityX", xTargetVel);
+//            telemetry.addData("targetVelocityY", yTargetVel);
+//            telemetry.addData("measuredVelocityX", currentVeloX);
+//            telemetry.addData("measuredVelocityY", currentVeloY);
+//            telemetry.addData("xPredicted",  xTargetPos);
+//            telemetry.addData("xCurrent", poseEstimate.getX());
+//            telemetry.addData("yError", yTargetPos - poseEstimate.getY());
+//            telemetry.addData("HeadingError", desired_heading - poseEstimate.getHeading());
 //            telemetry.addData("error", direction*motionProfile.getVelocity(timer.time()) - currentVelo);
             telemetry.update();
         }
@@ -209,13 +272,13 @@ public class TrajFollower {
             u = bezier_calc.bezier_param_of_disp(instantTargetPosition, bezier_calc.get_sums(), bezier_calc.get_upsilon());
             control_signal_x = px.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
             control_signal_y = py.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
-            control_signal_heading = pheading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
+            control_signal_heading = pheading.calculate(angleWrap(desired_heading), angleWrap(poseEstimate.getHeading()));
 
-            telemetry.addData("target x", bezier_x.bezier_get(u));
-            telemetry.addData("target y", bezier_y.bezier_get(u))   ;
-            telemetry.addData("start x", startPose.getX());
-            telemetry.addData("start y", startPose.getY());
-            telemetry.update();
+//            telemetry.addData("target x", bezier_x.bezier_get(u));
+//            telemetry.addData("target y", bezier_y.bezier_get(u))   ;
+//            telemetry.addData("start x", startPose.getX());
+//            telemetry.addData("start y", startPose.getY());
+//            telemetry.update();
 
             // Velocity
             // s′(t)u′(s(t))x′(u(s(t)))
@@ -253,6 +316,10 @@ public class TrajFollower {
             );
 
             dt.update();
+
+            telemetry.addData("y error", bezier_y.getD() - poseEstimate.getY());
+            telemetry.addData("x error", bezier_x.getD() - poseEstimate.getX());
+            telemetry.update();
         }
     }
 
@@ -261,9 +328,9 @@ public class TrajFollower {
         double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
         double dist = Math.sqrt(x+y);
 
-        double headingError = desiredPose.getHeading() - curPose.getHeading();
+        double headingError = Math.abs(desiredPose.getHeading() - curPose.getHeading());
 
-        if(dist <= err) return true;
+        if (dist <= err && headingError < Math.toRadians(3)) return true;
 
         return false;
     }

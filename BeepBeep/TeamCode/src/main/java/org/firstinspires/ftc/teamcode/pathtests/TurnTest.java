@@ -1,27 +1,19 @@
-package org.firstinspires.ftc.teamcode.beepbeep;
-
-import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.*;
+package org.firstinspires.ftc.teamcode.pathtests;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
-import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 
 @Config
 @TeleOp(group = "dev")
-public class LinearTest extends LinearOpMode {
+public class TurnTest extends LinearOpMode {
 
     // Target positions and heading
-    public static double desired_x = 40;
-    public static double desired_y = 40;
     public static double deg_desired_heading = 0;
 
     @Override
@@ -33,7 +25,7 @@ public class LinearTest extends LinearOpMode {
 
         waitForStart();
 
-        drive.followTrajectory(desired_x, desired_y, Math.toRadians(deg_desired_heading));
+        drive.turn(Math.toRadians(deg_desired_heading));
     }
 
     /*

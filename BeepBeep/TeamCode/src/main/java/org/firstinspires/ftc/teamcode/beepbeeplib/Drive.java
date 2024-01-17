@@ -35,12 +35,18 @@ public class Drive extends SampleMecanumDrive {
     public void followTrajectory(BezierCurve bezier_x, BezierCurve bezier_y, double desired_heading) {
         TrajFollower follower = new TrajFollower(this, telemetry);
 
-        follower.followBezier(error, bezier_x, bezier_y, pid_x, pid_x, pid_heading, desired_heading);
+        follower.followBezier(error, bezier_x, bezier_y, pid_x, pid_y, pid_heading, desired_heading);
     }
 
     public void followTrajectory(double x, double y, double desired_heading) {
         TrajFollower follower = new TrajFollower(this, telemetry);
 
-        follower.followLinear(error, x, y, desired_heading, pid_x, pid_x, pid_heading);
+        follower.followLinear(error, x, y, desired_heading, pid_x, pid_y, pid_heading);
+    }
+
+    public void turn(double desired_heading) {
+        TrajFollower follower = new TrajFollower(this, telemetry);
+
+        follower.turn(error, desired_heading, pid_x, pid_y, pid_heading);
     }
 }
