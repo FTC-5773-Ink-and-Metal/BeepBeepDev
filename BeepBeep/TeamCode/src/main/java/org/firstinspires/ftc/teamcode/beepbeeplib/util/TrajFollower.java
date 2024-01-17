@@ -61,6 +61,8 @@ public class TrajFollower {
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(desired_x, desired_y, Math.toRadians(desired_heading));
 
+        Pose2d startPose = poseEstimate;
+
         // desired_x = 10, desired_y = 10
         // poseX = 30, poseY = 40
         // desX - posX = -20; desY - posY = -30
@@ -100,11 +102,11 @@ public class TrajFollower {
             double vel = motionProfile.getVelocity(timer.time());
             double accel = motionProfile.getAcceleration(timer.time());
 
-            double xTargetPos = instantTargetPosition * Math.cos(path_angle);
+            double xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
             double xTargetVel = vel * Math.cos(path_angle);
             double xTargetAccel = accel * Math.cos(path_angle);
 
-            double yTargetPos = instantTargetPosition * Math.sin(path_angle);
+            double yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
             double yTargetVel = vel * Math.sin(path_angle);
             double yTargetAccel = accel * Math.sin(path_angle);
 
@@ -128,6 +130,10 @@ public class TrajFollower {
 
             control_signal_x = px.calculate(xTargetPos, poseEstimate.getX()) + powX;
             control_signal_y = py.calculate(yTargetPos, poseEstimate.getY()) + powY;
+//            control_signal_x = px.calculate(desired_x, poseEstimate.getX());
+//            control_signal_y = py.calculate(desired_y, poseEstimate.getY());
+//            control_signal_x = powX;
+//            control_signal_y = powY;
             control_signal_heading = pheading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
 
             Vector2d input = new Vector2d(
@@ -151,6 +157,10 @@ public class TrajFollower {
             double currentVeloY = poseVelo.getY();
 
             // update telemetry
+            telemetry.addData("target x", 0);
+            telemetry.addData("target y", 0);
+            telemetry.addData("start x", 0);
+            telemetry.addData("start y", 0);
             telemetry.addData("x aboslute error",  desired_x- poseEstimate.getX());
             telemetry.addData("y aboslute error",  desired_y- poseEstimate.getY());
             telemetry.addData("xPredicted",  xTargetPos);
@@ -171,20 +181,25 @@ public class TrajFollower {
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
-        double control_signal_x, control_signal_y, control_signal_heading;
+        double control_signal_x = 0, control_signal_y = 0, control_signal_heading = 0;
         double instantTargetPosition, u;
         double instantTargetVelocity, duds, dxdu, dydu, x_vel, y_vel;
         double instantTargetAcceleration, du2ds, dx2du, dy2du, x_accel, y_accel;
         double totalY, totalX;
 
+        Pose2d poseEstimate = dt.getPoseEstimate();
+        Pose2d desiredPose = new Pose2d(bezier_x.getD(), bezier_y.getD(), desired_heading);
+
+        Pose2d startPose = poseEstimate;
+
         BezierCurveCalc bezier_calc = new BezierCurveCalc();
+//        BezierCurve bezier_y_temp = new BezierCurve(bezier_x.getA()-startPose.getY(), bezier_x.getB()-startPose.getY(), bezier_x.getC()-startPose.getY(), bezier_x.getD()-startPose.getY());
+//        BezierCurve bezier_x_temp = new BezierCurve(bezier_y.getA()-startPose.getX(), bezier_y.getB()-startPose.getX(), bezier_y.getC()-startPose.getX(), bezier_y.getD()-startPose.getX());
         double curve_length = bezier_calc.bezier_length(bezier_x, bezier_y);
 
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, curve_length);
 
 //        while(timer.time() >= motionProfile.getTotalTime() && )
-        Pose2d poseEstimate = dt.getPoseEstimate();
-        Pose2d desiredPose = new Pose2d(bezier_x.getD(), bezier_y.getD(), desired_heading);
 
         while(!calcError(error, poseEstimate, desiredPose) && motionProfile.getTotalTime() >= timer.time()) {
             poseEstimate = dt.getPoseEstimate();
@@ -195,6 +210,12 @@ public class TrajFollower {
             control_signal_x = px.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
             control_signal_y = py.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
             control_signal_heading = pheading.calculate(angleWrap(Math.toRadians(desired_heading)), angleWrap(poseEstimate.getHeading()));
+
+            telemetry.addData("target x", bezier_x.bezier_get(u));
+            telemetry.addData("target y", bezier_y.bezier_get(u))   ;
+            telemetry.addData("start x", startPose.getX());
+            telemetry.addData("start y", startPose.getY());
+            telemetry.update();
 
             // Velocity
             // s′(t)u′(s(t))x′(u(s(t)))
