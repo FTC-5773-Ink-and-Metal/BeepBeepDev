@@ -28,7 +28,7 @@ public class TrajFollower {
         this.dt = dt;
     }
 
-    public void followBezier(double error, BezierCurve bezier_x, BezierCurve bezier_y, PIDController px, PIDController py, PIDController pheading, double desired_heading) {
+    public void followBezier(Pose2d error, BezierCurve bezier_x, BezierCurve bezier_y, PIDController px, PIDController py, PIDController pheading, double desired_heading) {
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
@@ -46,7 +46,7 @@ public class TrajFollower {
 //        while(timer.time() >= motionProfile.getTotalTime() && )
         Pose2d poseEstimate = dt.getPoseEstimate();
 
-        while(calcError(error, poseEstimate, poseEstimate) || motionProfile.getTotalTime() >= timer.time()) {
+        while(calcError(error, poseEstimate, poseEstimate)) {
             poseEstimate = dt.getPoseEstimate();
 
             // Position
@@ -95,14 +95,14 @@ public class TrajFollower {
         }
     }
 
-    private boolean calcError(double err, Pose2d curPose, Pose2d desiredPose) {
-        double x = Math.pow(desiredPose.getX() - curPose.getX(), 2);
-        double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
-        double dist = Math.sqrt(x+y);
+    private boolean calcError(Pose2d admissible, Pose2d curPose, Pose2d desiredPose) {
+        double x = Math.abs(desiredPose.getX() - curPose.getX());
+        double y = Math.abs(desiredPose.getY() - curPose.getY());
+        double heading = Math.abs(Math.toRadians(desiredPose.getHeading()) - Math.toRadians(curPose.getHeading()));
 
-        if(dist <= err) return true;
+        boolean end = x <= admissible.getY() && y <= admissible.getY() && heading <= Math.toRadians(admissible.getHeading());
 
-        return false;
+        return !end;
     }
 
     private double angleWrap(double radians) {

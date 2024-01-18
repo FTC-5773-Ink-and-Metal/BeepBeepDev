@@ -11,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
@@ -23,7 +24,7 @@ public class Drive extends SampleMecanumDrive {
     PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
     PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
     PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
-    public static double error = 1;
+    public static Pose2d error = new Pose2d(1, 1, Math.toRadians(5));
 
     public Drive(HardwareMap hwMap) {
         super(hwMap);
