@@ -54,39 +54,66 @@ public class TrajFollower {
         this.dt = dt;
     }
 
-    public void turn(double error, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
+    /**
+     * @param error
+     * @param desired_heading
+     * @param px
+     * @param py
+     * @param pheading
+     * @param direction - negative = clockwise, positive = counter-clockwise
+     */
+    public void turn(double error, double desired_heading, PIDController px, PIDController py, PIDController pheading, int direction) {
         double control_signal_x = 0;
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(poseEstimate.getX(), poseEstimate.getY(), desired_heading);
-        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, desired_heading);
+        double startHeading = desiredPose.getHeading();
 
-        Pose2d startPose = poseEstimate;
+        // 360 - 270 = 90
+        double angularDisplacement = Math.PI*2 - desired_heading;
+        if (direction > 0) {
+            angularDisplacement = desired_heading;
+//            angularDisplacement = desired_heading - startHeading;
+        }
+
+        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
 
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
         while (!calcError(error, poseEstimate, desiredPose)) {
             poseEstimate = dt.getPoseEstimate();
-            int motionMultiplier = 1;
 
             double instantTargetPositionHeading = motionProfileHeading.getPosition(timer.time());
             double velHeading = motionProfileHeading.getVelocity(timer.time());
             double accelHeading = motionProfileHeading.getAcceleration(timer.time());
 
-            double powAng = motionMultiplier * (velHeading * kV_ang + accelHeading * kA_ang);
-            powAng = powAng + kS_ang * powAng/Math.abs(powAng);
+            double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
+            powAng = direction * (powAng + kS_ang * powAng);
 
             if (motionProfileHeading.isFinished(timer.time())) {
-                instantTargetPositionHeading = desired_heading;
+                instantTargetPositionHeading = Math.PI*2 - desired_heading;
+                if (direction > 0) {
+                    instantTargetPositionHeading = desired_heading;
+                }
                 powAng = 0;
             }
 
-            control_signal_x = px.calculate(0, poseEstimate.getX());
-            control_signal_y = py.calculate(0, poseEstimate.getY());
-            control_signal_heading = pheading.calculate((instantTargetPositionHeading), (poseEstimate.getHeading())) + powAng;
+            if (direction < 0) {
+                instantTargetPositionHeading = 2*Math.PI - instantTargetPositionHeading;
+            }
+
+            control_signal_x = 0;
+            control_signal_y = 0;
+            double currHeading = poseEstimate.getHeading();
+
+            if ((currHeading == 0) && (direction < 1)) {
+                currHeading = 2*Math.PI;
+            }
+
+            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading)+powAng;
 
             Vector2d input = new Vector2d(
                     control_signal_x,
@@ -104,11 +131,11 @@ public class TrajFollower {
             dt.update();
 
             // Print pose to telemetry
-            telemetry.addData("x", poseEstimate.getX());
-            telemetry.addData("y", poseEstimate.getY());
+            telemetry.addData("instant heading pos", (instantTargetPositionHeading));
+            telemetry.addData("currHeading", currHeading);
+            telemetry.addData("PID output", control_signal_heading-powAng*direction);
+            telemetry.addData("FF output", powAng*direction);
             telemetry.addData("heading", poseEstimate.getHeading());
-            telemetry.addData("x error", 0 - poseEstimate.getX());
-            telemetry.addData("y error", 0 - poseEstimate.getY());
             telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
             telemetry.update();
         }
