@@ -87,7 +87,7 @@ public class TrajFollower {
 
         MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
 
-//        double target = angleWrap(desired_heading);
+        double target = angleWrap(desired_heading);
 
         ElapsedTime timer = new ElapsedTime();
         timer.time();
@@ -103,21 +103,13 @@ public class TrajFollower {
             double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
             powAng = direction * (powAng + kS_ang * powAng);
 
-//            if (motionProfileHeading.isFinished(timer.time())) {
-//                instantTargetPositionHeading = Math.PI*2 - desired_heading;
-//                if (direction > 0) {
-//                    instantTargetPositionHeading = desired_heading;
-//                }
-//                powAng = 0;
-//            }
-
-//            if (direction < 0) {
-//                instantTargetPositionHeading = 2*Math.PI - instantTargetPositionHeading;
-//            }
-
             control_signal_x = 0;
             control_signal_y = 0;
             double currHeading = angleWrap(poseEstimate.getHeading() - start_heading);
+
+            if (motionProfileHeading.isFinished(timer.time())) {
+                instantTargetPositionHeading = target;
+            }
 
             control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading); // + powAng
 
