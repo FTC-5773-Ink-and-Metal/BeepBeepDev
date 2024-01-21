@@ -16,6 +16,7 @@ public class TurnTest extends LinearOpMode {
     // Target positions and heading
     public static double deg_desired_heading = 0;
     public static int direction = -1;
+    public static double deg_start_heading = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,15 +24,17 @@ public class TurnTest extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
         Drive drive = new Drive(hardwareMap, telemetry);
+        telemetry.addData("JUMP", 0);
         telemetry.addData("instant heading pos", 0);
         telemetry.addData("currHeading", 2*Math.PI);
+        telemetry.addData("angularDisplacement", -10);
         telemetry.addData("PID output", 0);
         telemetry.addData("FF output", 0);
         telemetry.update();
 
         waitForStart();
 
-        drive.followTurn(Math.toRadians(deg_desired_heading), direction);
+        drive.followTurn(Math.toRadians(deg_desired_heading), Math.toRadians(deg_start_heading), direction);
     }
 
     /*

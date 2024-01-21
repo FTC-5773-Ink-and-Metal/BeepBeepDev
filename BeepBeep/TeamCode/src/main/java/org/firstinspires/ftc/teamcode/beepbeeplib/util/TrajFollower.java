@@ -13,11 +13,9 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_heading;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
-import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_ang;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_y;
-import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_ang;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_y;
@@ -41,8 +39,6 @@ import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 
-import java.util.Objects;
-
 public class TrajFollower {
     Drive dt;
     Telemetry telemetry;
@@ -62,23 +58,36 @@ public class TrajFollower {
      * @param pheading
      * @param direction - negative = clockwise, positive = counter-clockwise
      */
-    public void turn(double error, double desired_heading, PIDController px, PIDController py, PIDController pheading, int direction) {
+    public void turn(double error, double desired_heading, double start_heading, PIDController px, PIDController py, PIDController pheading, int direction) {
         double control_signal_x = 0;
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
+        // remove after testing done
+        dt.setPoseEstimate(new Pose2d(dt.getPoseEstimate().getX(), dt.getPoseEstimate().getY(), start_heading));
+
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(poseEstimate.getX(), poseEstimate.getY(), desired_heading);
-        double startHeading = desiredPose.getHeading();
+        double startHeading = start_heading; // pose.getHeading();
+
+        desired_heading = desired_heading - startHeading;
+//        double lastHeading = start_heading + (Math.PI * 2 - start_heading);
+//        startHeading = 0;
+        double angularDisplacement = correctAngle(desired_heading*direction);
+
+        telemetry.addData("angularDisplacement", angularDisplacement);
+        telemetry.update();
 
         // 360 - 270 = 90
-        double angularDisplacement = Math.PI*2 - desired_heading;
-        if (direction > 0) {
-            angularDisplacement = desired_heading;
-//            angularDisplacement = desired_heading - startHeading;
-        }
+//        double angularDisplacement = Math.PI*2 - desired_heading;
+//        if (direction > 0) {
+//            angularDisplacement = desired_heading;
+////            angularDisplacement = desired_heading - startHeading;
+//        }
 
         MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
+
+//        double target = angleWrap(desired_heading);
 
         ElapsedTime timer = new ElapsedTime();
         timer.time();
@@ -86,34 +95,31 @@ public class TrajFollower {
         while (!calcError(error, poseEstimate, desiredPose)) {
             poseEstimate = dt.getPoseEstimate();
 
-            double instantTargetPositionHeading = motionProfileHeading.getPosition(timer.time());
+            double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
+//            double instantTargetPositionHeading = motionProfileHeading.getPosition(timer.time());
             double velHeading = motionProfileHeading.getVelocity(timer.time());
             double accelHeading = motionProfileHeading.getAcceleration(timer.time());
 
             double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
             powAng = direction * (powAng + kS_ang * powAng);
 
-            if (motionProfileHeading.isFinished(timer.time())) {
-                instantTargetPositionHeading = Math.PI*2 - desired_heading;
-                if (direction > 0) {
-                    instantTargetPositionHeading = desired_heading;
-                }
-                powAng = 0;
-            }
+//            if (motionProfileHeading.isFinished(timer.time())) {
+//                instantTargetPositionHeading = Math.PI*2 - desired_heading;
+//                if (direction > 0) {
+//                    instantTargetPositionHeading = desired_heading;
+//                }
+//                powAng = 0;
+//            }
 
-            if (direction < 0) {
-                instantTargetPositionHeading = 2*Math.PI - instantTargetPositionHeading;
-            }
+//            if (direction < 0) {
+//                instantTargetPositionHeading = 2*Math.PI - instantTargetPositionHeading;
+//            }
 
             control_signal_x = 0;
             control_signal_y = 0;
-            double currHeading = poseEstimate.getHeading();
+            double currHeading = angleWrap(poseEstimate.getHeading() - start_heading);
 
-            if ((currHeading == 0) && (direction < 1)) {
-                currHeading = 2*Math.PI;
-            }
-
-            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading)+powAng;
+            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading); // + powAng
 
             Vector2d input = new Vector2d(
                     control_signal_x,
@@ -372,6 +378,18 @@ public class TrajFollower {
         }
 
         // keep in mind that the result is in radians
+        return radians;
+    }
+
+    private double correctAngle(double radians) {
+        while (radians < 0) {
+            radians += 2*Math.PI;
+        }
+
+        while (radians >= 2*Math.PI) {
+            radians -= 2*Math.PI;
+        }
+
         return radians;
     }
 }

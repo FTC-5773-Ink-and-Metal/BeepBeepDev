@@ -44,9 +44,9 @@ public class Drive extends SampleMecanumDrive {
         follower.followLinear(error, x, y, desired_heading, pid_x, pid_y, pid_heading);
     }
 
-    public void followTurn(double desired_heading, int direction) {
+    public void followTurn(double desired_heading, double start_heading, int direction) {
         TrajFollower follower = new TrajFollower(this, telemetry);
 
-        follower.turn(error, desired_heading, pid_x, pid_y, pid_heading, direction);
+        follower.turn(error, desired_heading, start_heading, pid_x, pid_y, pid_heading, direction);
     }
 }
