@@ -68,22 +68,13 @@ public class TrajFollower {
 
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(poseEstimate.getX(), poseEstimate.getY(), desired_heading);
-        double startHeading = start_heading; // pose.getHeading();
+        double startHeading = start_heading;
 
         desired_heading = desired_heading - startHeading;
-//        double lastHeading = start_heading + (Math.PI * 2 - start_heading);
-//        startHeading = 0;
         double angularDisplacement = correctAngle(desired_heading*direction);
 
         telemetry.addData("angularDisplacement", angularDisplacement);
         telemetry.update();
-
-        // 360 - 270 = 90
-//        double angularDisplacement = Math.PI*2 - desired_heading;
-//        if (direction > 0) {
-//            angularDisplacement = desired_heading;
-////            angularDisplacement = desired_heading - startHeading;
-//        }
 
         MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
 
@@ -96,22 +87,22 @@ public class TrajFollower {
             poseEstimate = dt.getPoseEstimate();
 
             double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
-//            double instantTargetPositionHeading = motionProfileHeading.getPosition(timer.time());
             double velHeading = motionProfileHeading.getVelocity(timer.time());
             double accelHeading = motionProfileHeading.getAcceleration(timer.time());
 
             double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
             powAng = direction * (powAng + kS_ang * powAng);
 
-            control_signal_x = 0;
-            control_signal_y = 0;
+            control_signal_x = px.calculate(desiredPose.getX(), poseEstimate.getX());
+            control_signal_y = py.calculate(desiredPose.getY(), poseEstimate.getY());
+
             double currHeading = angleWrap(poseEstimate.getHeading() - start_heading);
 
             if (motionProfileHeading.isFinished(timer.time())) {
                 instantTargetPositionHeading = target;
             }
 
-            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading); // + powAng
+            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading) + powAng;
 
             Vector2d input = new Vector2d(
                     control_signal_x,

@@ -18,23 +18,29 @@ public class TurnTest extends LinearOpMode {
     public static int direction = -1;
     public static double deg_start_heading = 0;
 
+    public static double deg_desired_heading2 = 0;
+    public static int direction2 = -1;
+    public static double deg_start_heading2 = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
         Drive drive = new Drive(hardwareMap, telemetry);
-        telemetry.addData("JUMP", 0);
-        telemetry.addData("instant heading pos", 0);
-        telemetry.addData("currHeading", 2*Math.PI);
-        telemetry.addData("angularDisplacement", -10);
-        telemetry.addData("PID output", 0);
-        telemetry.addData("FF output", 0);
-        telemetry.update();
+//        telemetry.addData("JUMP", 0);
+//        telemetry.addData("instant heading pos", 0);
+//        telemetry.addData("currHeading", 2*Math.PI);
+//        telemetry.addData("angularDisplacement", -10);
+//        telemetry.addData("PID output", 0);
+//        telemetry.addData("FF output", 0);
+//        telemetry.update();
 
         waitForStart();
 
         drive.followTurn(Math.toRadians(deg_desired_heading), Math.toRadians(deg_start_heading), direction);
+        sleep(2000);
+        drive.followTurn(Math.toRadians(deg_desired_heading2), Math.toRadians(deg_start_heading2), direction2);
     }
 
     /*
