@@ -14,13 +14,13 @@ import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 public class TurnTest extends LinearOpMode {
 
     // Target positions and heading
-    public static double deg_desired_heading = 0;
-    public static int direction = -1;
+    public static double deg_desired_heading = 170;
+    public static int direction = 1;
     public static double deg_start_heading = 0;
 
     public static double deg_desired_heading2 = 0;
     public static int direction2 = -1;
-    public static double deg_start_heading2 = 0;
+    public static double deg_start_heading2 = 170;
 
     @Override
     public void runOpMode() throws InterruptedException {

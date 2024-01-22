@@ -13,6 +13,7 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Ki_y;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_heading;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.angular_error;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_ang;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_x;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kA_y;
@@ -26,6 +27,8 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAcce
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngAccel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngVel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxVel;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.translational_error;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.velo_error;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -39,6 +42,8 @@ import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 
+import java.util.Objects;
+
 public class TrajFollower {
     Drive dt;
     Telemetry telemetry;
@@ -51,20 +56,19 @@ public class TrajFollower {
     }
 
     /**
-     * @param error
      * @param desired_heading
      * @param px
      * @param py
      * @param pheading
      * @param direction - negative = clockwise, positive = counter-clockwise
      */
-    public void turn(double error, double desired_heading, double start_heading, PIDController px, PIDController py, PIDController pheading, int direction) {
+    public void turn(double desired_heading, double start_heading, PIDController px, PIDController py, PIDController pheading, int direction) {
         double control_signal_x = 0;
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
         // remove after testing done
-        dt.setPoseEstimate(new Pose2d(dt.getPoseEstimate().getX(), dt.getPoseEstimate().getY(), start_heading));
+//        dt.setPoseEstimate(new Pose2d(dt.getPoseEstimate().getX(), dt.getPoseEstimate().getY(), start_heading));
 
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(poseEstimate.getX(), poseEstimate.getY(), desired_heading);
@@ -73,8 +77,8 @@ public class TrajFollower {
         desired_heading = desired_heading - startHeading;
         double angularDisplacement = correctAngle(desired_heading*direction);
 
-        telemetry.addData("angularDisplacement", angularDisplacement);
-        telemetry.update();
+//        telemetry.addData("angularDisplacement", angularDisplacement);
+//        telemetry.update();
 
         MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
 
@@ -83,7 +87,7 @@ public class TrajFollower {
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
-        while (!calcError(error, poseEstimate, desiredPose)) {
+        while (!calcError(poseEstimate, desiredPose)) {
             poseEstimate = dt.getPoseEstimate();
 
             double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
@@ -98,8 +102,17 @@ public class TrajFollower {
 
             double currHeading = angleWrap(poseEstimate.getHeading() - start_heading);
 
+//            if (motionProfileHeading.isFinished(timer.time())) {
+//                instantTargetPositionHeading = target;
+//            }
+
             if (motionProfileHeading.isFinished(timer.time())) {
-                instantTargetPositionHeading = target;
+//                telemetry.addData("In if condition", 1);
+                if (Math.abs(angularDisplacement) == Math.toRadians(180)) {
+                    instantTargetPositionHeading = Math.toRadians(180) * currHeading/Math.abs(currHeading);
+                } else {
+                    instantTargetPositionHeading = target;
+                }
             }
 
             control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading) + powAng;
@@ -130,7 +143,7 @@ public class TrajFollower {
         }
     }
 
-    public void followLinear(double error, double desired_x, double desired_y, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
+    public void followLinear(double desired_x, double desired_y, double desired_heading, PIDController px, PIDController py, PIDController pheading) {
         double control_signal_x = 0;
         double control_signal_y = 0;
         double control_signal_heading = 0;
@@ -139,6 +152,13 @@ public class TrajFollower {
         Pose2d desiredPose = new Pose2d(desired_x, desired_y, desired_heading);
 
         Pose2d startPose = poseEstimate;
+
+        double startHeading = poseEstimate.getHeading();
+        desired_heading = desired_heading - startHeading;
+        double direction = getTurnDirection(startHeading, desired_heading);
+        double angularDisplacement = correctAngle(desired_heading*direction);
+        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
+        double target = angleWrap(desired_heading);
 
         // desired_x = 10, desired_y = 10
         // poseX = 30, poseY = 40
@@ -158,13 +178,13 @@ public class TrajFollower {
 
         // calcError --> true when finished
         // motion prof --> true when finished
-        int direction = 1;
+//        int direction = 1;
         // !calcError(error, poseEstimate, desiredPose) &&
         //  && (motionProfile.getTotalTime() >= timer.time())
 
-        while (!calcError(error, poseEstimate, desiredPose)) {
+        while (!calcError(poseEstimate, desiredPose) && !calcVelError(poseEstimate, desiredPose)) {
             double motionMultiplier = 1;
-            direction *= -1;
+//            direction *= -1;
 
             // REMOVE when not tuning
             px = new PIDController(Kp_x, Ki_x, Kd_x);
@@ -173,9 +193,31 @@ public class TrajFollower {
 
             double instantTargetPosition = motionProfile.getPosition(timer.time());
 
+            double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
+            double velHeading = motionProfileHeading.getVelocity(timer.time());
+            double accelHeading = motionProfileHeading.getAcceleration(timer.time());
+
+            double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
+            powAng = direction * (powAng + kS_ang * powAng);
+            double currHeading = angleWrap(poseEstimate.getHeading() - startHeading);
+
             if (motionProfile.isFinished(timer.time())) {
                 instantTargetPosition = path_distance;
             }
+
+            telemetry.addData("Sign", currHeading/Math.abs(currHeading));
+            telemetry.addData("currHeading", currHeading);
+            telemetry.addData("In if condition", 0);
+
+            if (motionProfileHeading.isFinished(timer.time())) {
+//                telemetry.addData("In if condition", 1);
+                if (Math.abs(angularDisplacement) == Math.toRadians(180)) {
+                    instantTargetPositionHeading = Math.toRadians(180) * currHeading/Math.abs(currHeading);
+                } else {
+                    instantTargetPositionHeading = target;
+                }
+            }
+
             double vel = motionProfile.getVelocity(timer.time());
             double accel = motionProfile.getAcceleration(timer.time());
 
@@ -211,7 +253,8 @@ public class TrajFollower {
 //            control_signal_y = py.calculate(desired_y, poseEstimate.getY());
 //            control_signal_x = powX;
 //            control_signal_y = powY;
-            control_signal_heading = pheading.calculate(angleWrap(desired_heading), angleWrap(poseEstimate.getHeading()));
+//            control_signal_heading = pheading.calculate(angleWrap(desired_heading), angleWrap(poseEstimate.getHeading()));
+            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading) + powAng;
 
             Vector2d input = new Vector2d(
                     control_signal_x,
@@ -236,6 +279,7 @@ public class TrajFollower {
             // update telemetry
             telemetry.addData("y error", desired_y - poseEstimate.getY());
             telemetry.addData("x error", desired_x - poseEstimate.getX());
+            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
 //            telemetry.addData("target x", 0);
 //            telemetry.addData("target y", 0);
 //            telemetry.addData("start x", 0);
@@ -256,7 +300,7 @@ public class TrajFollower {
         }
     }
 
-    public void followBezier(double error, BezierCurve bezier_x, BezierCurve bezier_y, PIDController px, PIDController py, PIDController pheading, double desired_heading) {
+    public void followBezier(BezierCurve bezier_x, BezierCurve bezier_y, PIDController px, PIDController py, PIDController pheading, double desired_heading, double time_factor) {
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
@@ -279,12 +323,13 @@ public class TrajFollower {
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, curve_length);
 
 //        while(timer.time() >= motionProfile.getTotalTime() && )
+        //  && motionProfile.getTotalTime() >= 1.5 * timer.time()
 
-        while(!calcError(error, poseEstimate, desiredPose) && motionProfile.getTotalTime() >= timer.time()) {
+        while(!calcError(poseEstimate, desiredPose)) {
             poseEstimate = dt.getPoseEstimate();
 
             // Position
-            instantTargetPosition = motionProfile.getPosition(timer.time());
+            instantTargetPosition = motionProfile.getPosition(time_factor * timer.time());
             u = bezier_calc.bezier_param_of_disp(instantTargetPosition, bezier_calc.get_sums(), bezier_calc.get_upsilon());
             control_signal_x = px.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
             control_signal_y = py.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
@@ -298,7 +343,7 @@ public class TrajFollower {
 
             // Velocity
             // s′(t)u′(s(t))x′(u(s(t)))
-            instantTargetVelocity = motionProfile.getVelocity(timer.time());
+            instantTargetVelocity = motionProfile.getVelocity(time_factor * timer.time());
             duds = bezier_calc.bezier_param_of_disp_deriv(bezier_x, bezier_y, u);
             dxdu = bezier_x.bezier_deriv(u);
             dydu = bezier_y.bezier_deriv(u);
@@ -307,7 +352,7 @@ public class TrajFollower {
 
             // Acceleration
             // (s'(t))^2 * (u'(s(t)))^2 * x''(u(s(t))) + ((s'(t))^2 * u''(s(t)) + s''(t) * u'(s(t))) * x'(u(s(t)))
-            instantTargetAcceleration = motionProfile.getAcceleration(timer.time());
+            instantTargetAcceleration = motionProfile.getAcceleration(time_factor * timer.time());
             du2ds = bezier_calc.bezier_param_of_disp_deriv2(bezier_x, bezier_y, u);
             dx2du = bezier_x.bezier_deriv2(u);
             dy2du = bezier_y.bezier_deriv2(u);
@@ -315,7 +360,7 @@ public class TrajFollower {
             y_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dy2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dydu;
 
             // Combined
-            totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x;
+            totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x; // add control signals
             totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
 
             Vector2d input = new Vector2d(
@@ -339,14 +384,31 @@ public class TrajFollower {
         }
     }
 
-    private boolean calcError(double err, Pose2d curPose, Pose2d desiredPose) {
+    private boolean calcError(Pose2d curPose, Pose2d desiredPose) {
         double x = Math.pow(desiredPose.getX() - curPose.getX(), 2);
         double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
         double dist = Math.sqrt(x+y);
 
         double headingError = Math.abs(desiredPose.getHeading() - curPose.getHeading());
 
-        if (dist <= err && headingError < Math.toRadians(3)) return true;
+        if (dist <= translational_error && headingError < angular_error) return true;
+
+        return false;
+    }
+
+    private boolean calcVelError(Pose2d curPose, Pose2d desiredPose) {
+        double x = Math.pow(desiredPose.getX() - curPose.getX(), 2);
+        double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
+        double dist = Math.sqrt(x+y);
+
+        double headingError = Math.abs(desiredPose.getHeading() - curPose.getHeading());
+
+        Pose2d poseVelo = Objects.requireNonNull(dt.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+        double currentVeloX = poseVelo.getX();
+        double currentVeloY = poseVelo.getY();
+        double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+
+        if (dist <= translational_error && headingError < angular_error && totalVelo < velo_error) return true;
 
         return false;
     }
@@ -374,5 +436,23 @@ public class TrajFollower {
         }
 
         return radians;
+    }
+
+    private double getTurnDirection(double curr, double target) {
+        double c_dist = 0, cc_dist = 0;
+
+        if (curr < target) {
+            cc_dist = target - curr; // 190
+            c_dist = curr + Math.toRadians(360) - target;
+        } else if (curr > target) {
+            c_dist = target + Math.toRadians(360) - curr;
+            cc_dist = curr - target;
+        }
+
+        if (c_dist > cc_dist) {
+            return 1;
+        }
+
+        return -1;
     }
 }

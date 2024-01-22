@@ -24,7 +24,7 @@ public class Drive extends SampleMecanumDrive {
     PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
     PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
     PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
-    public static double error = 0.3;
+
     Telemetry telemetry;
 
     public Drive(HardwareMap hwMap, Telemetry telemetry) {
@@ -32,21 +32,21 @@ public class Drive extends SampleMecanumDrive {
         this.telemetry = telemetry;
     }
 
-    public void followTrajectory(BezierCurve bezier_x, BezierCurve bezier_y, double desired_heading) {
+    public void followTrajectory(BezierCurve bezier_x, BezierCurve bezier_y, double desired_heading, double time_factor) {
         TrajFollower follower = new TrajFollower(this, telemetry);
 
-        follower.followBezier(error, bezier_x, bezier_y, pid_x, pid_y, pid_heading, desired_heading);
+        follower.followBezier(bezier_x, bezier_y, pid_x, pid_y, pid_heading, desired_heading, time_factor);
     }
 
     public void followTrajectory(double x, double y, double desired_heading) {
         TrajFollower follower = new TrajFollower(this, telemetry);
 
-        follower.followLinear(error, x, y, desired_heading, pid_x, pid_y, pid_heading);
+        follower.followLinear(x, y, desired_heading, pid_x, pid_y, pid_heading);
     }
 
     public void followTurn(double desired_heading, double start_heading, int direction) {
         TrajFollower follower = new TrajFollower(this, telemetry);
 
-        follower.turn(error, desired_heading, start_heading, pid_x, pid_y, pid_heading, direction);
+        follower.turn(desired_heading, start_heading, pid_x, pid_y, pid_heading, direction);
     }
 }

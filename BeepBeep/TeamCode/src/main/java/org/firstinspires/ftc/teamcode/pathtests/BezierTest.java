@@ -28,6 +28,8 @@ public class BezierTest extends LinearOpMode {
     public static double p4Y = 30;
     public static double desired_heading = 0;
 
+    public static double time_factor = 1;
+
     @Override
     public void runOpMode() throws InterruptedException {
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -41,6 +43,6 @@ public class BezierTest extends LinearOpMode {
 
         waitForStart();
 
-        drive.followTrajectory(bezier_x, bezier_y, Math.toRadians(desired_heading));
+        drive.followTrajectory(bezier_x, bezier_y, Math.toRadians(desired_heading), time_factor);
     }
 }
