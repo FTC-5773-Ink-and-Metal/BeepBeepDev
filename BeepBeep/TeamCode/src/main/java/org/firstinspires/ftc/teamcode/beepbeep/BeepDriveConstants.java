@@ -44,4 +44,6 @@ public class BeepDriveConstants {
     public static double translational_error = 0.3;
     public static double angular_error = Math.toRadians(1.5);
     public static double velo_error = 1;
+
+    public static double pathBreakerLinear = 6;
 }

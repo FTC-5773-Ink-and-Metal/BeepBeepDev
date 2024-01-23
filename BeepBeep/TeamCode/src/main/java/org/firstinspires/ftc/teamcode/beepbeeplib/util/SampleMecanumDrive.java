@@ -219,6 +219,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
     }
 
+    public double getVoltage() {
+        return batteryVoltageSensor.getVoltage();
+    }
+
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(zeroPowerBehavior);

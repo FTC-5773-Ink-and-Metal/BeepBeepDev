@@ -42,6 +42,10 @@ public class BezierTest extends LinearOpMode {
         BezierCurve bezier_y = new BezierCurve(p1Y, p2Y, p3Y, p4Y);
 
         telemetry.addData("calc vel", 0);
+        telemetry.addData("Error to Inst. Pos", 0);
+        telemetry.addData("Error to Inst. Vel", 0);
+        telemetry.addData("Battery Voltage", 0);
+        telemetry.update();
         telemetry.update();
 
         waitForStart();

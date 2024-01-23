@@ -27,6 +27,7 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAcce
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngAccel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngVel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxVel;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.pathBreakerLinear;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.translational_error;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.velo_error;
 
@@ -148,6 +149,9 @@ public class TrajFollower {
         double control_signal_y = 0;
         double control_signal_heading = 0;
 
+        boolean pathBroken = false;
+        double pauseTime = 0;
+
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(desired_x, desired_y, desired_heading);
 
@@ -181,8 +185,10 @@ public class TrajFollower {
 //        int direction = 1;
         // !calcError(error, poseEstimate, desiredPose) &&
         //  && (motionProfile.getTotalTime() >= timer.time())
-        // TODO: add the while true version of the conditional
-        while (!atTarget(poseEstimate, desiredPose) && !isMotionless()) {
+        while (true) {
+            if (isMotionless() && atTarget(poseEstimate, desiredPose)) {
+                break;
+            }
             double motionMultiplier = 1;
 //            direction *= -1;
 
@@ -191,23 +197,44 @@ public class TrajFollower {
             py = new PIDController(Kp_y, Ki_y, Kd_y);
             pheading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
 
-            double instantTargetPosition = motionProfile.getPosition(timer.time());
+            double currTime = 0;
 
-            double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
-            double velHeading = motionProfileHeading.getVelocity(timer.time());
-            double accelHeading = motionProfileHeading.getAcceleration(timer.time());
+            if (pathBroken) {
+//                timer = new ElapsedTime((long) pauseTime);
+                currTime = pauseTime;
+            }
+
+            double instantTargetPosition = motionProfile.getPosition(currTime);
+            double xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
+            double yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
+
+            if (pathBreakerLinear > Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2)))) {
+                pathBroken = false;
+                timer = new ElapsedTime((long) pauseTime);
+                currTime = timer.time();
+            }
+
+            instantTargetPosition = motionProfile.getPosition(currTime);
+            xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
+            yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
+
+//            double instantTargetPosition = motionProfile.getPosition(currTime);
+
+            double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(currTime);
+            double velHeading = motionProfileHeading.getVelocity(currTime);
+            double accelHeading = motionProfileHeading.getAcceleration(currTime);
 
             double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
             powAng = direction * (powAng + kS_ang * powAng);
             double currHeading = angleWrap(poseEstimate.getHeading() - startHeading);
 
-            if (motionProfile.isFinished(timer.time())) {
+            if (motionProfile.isFinished(currTime)) {
                 instantTargetPosition = path_distance;
             }
 
-            telemetry.addData("Sign", currHeading/Math.abs(currHeading));
-            telemetry.addData("currHeading", currHeading);
-            telemetry.addData("In if condition", 0);
+//            telemetry.addData("Sign", currHeading/Math.abs(currHeading));
+//            telemetry.addData("currHeading", currHeading);
+//            telemetry.addData("In if condition", 0);
 
             if (motionProfileHeading.isFinished(timer.time())) {
 //                telemetry.addData("In if condition", 1);
@@ -218,14 +245,14 @@ public class TrajFollower {
                 }
             }
 
-            double vel = motionProfile.getVelocity(timer.time());
-            double accel = motionProfile.getAcceleration(timer.time());
+            double vel = motionProfile.getVelocity(currTime);
+            double accel = motionProfile.getAcceleration(currTime);
 
-            double xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
+//            double xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
             double xTargetVel = vel * Math.cos(path_angle);
             double xTargetAccel = accel * Math.cos(path_angle);
 
-            double yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
+//            double yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
             double yTargetVel = vel * Math.sin(path_angle);
             double yTargetAccel = accel * Math.sin(path_angle);
 
@@ -246,6 +273,15 @@ public class TrajFollower {
             }
 
             poseEstimate = dt.getPoseEstimate();
+
+            if (pathBreakerLinear < Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))) && !pathBroken) {
+                pathBroken = true;
+                powX = 0;
+                xTargetPos = poseEstimate.getX();
+                powY = 0;
+                yTargetPos = poseEstimate.getY();
+                pauseTime = timer.time();
+            }
 
             control_signal_x = px.calculate(xTargetPos, poseEstimate.getX()) + powX;
             control_signal_y = py.calculate(yTargetPos, poseEstimate.getY()) + powY;
@@ -277,9 +313,9 @@ public class TrajFollower {
 //            double currentVeloY = poseVelo.getY();
 
             // update telemetry
-            telemetry.addData("y error", desired_y - poseEstimate.getY());
-            telemetry.addData("x error", desired_x - poseEstimate.getX());
-            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
+//            telemetry.addData("y error", desired_y - poseEstimate.getY());
+//            telemetry.addData("x error", desired_x - poseEstimate.getX());
+//            telemetry.addData("heading error", desired_heading - poseEstimate.getHeading());
 //            telemetry.addData("target x", 0);
 //            telemetry.addData("target y", 0);
 //            telemetry.addData("start x", 0);
@@ -296,6 +332,20 @@ public class TrajFollower {
 //            telemetry.addData("yError", yTargetPos - poseEstimate.getY());
 //            telemetry.addData("HeadingError", desired_heading - poseEstimate.getHeading());
 //            telemetry.addData("error", direction*motionProfile.getVelocity(timer.time()) - currentVelo);
+            telemetry.addData("Error to Inst. Pos", Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))));
+            if (Objects.isNull(dt.getPoseVelocity())) {
+                telemetry.addData("Error to Inst. Vel", 0);
+            } else {
+                Pose2d poseVelo = dt.getPoseVelocity();
+
+                double currentVeloX = poseVelo.getX();
+                double currentVeloY = poseVelo.getY();
+
+//                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+                telemetry.addData("Error to Inst. Vel", Math.sqrt(Math.pow((xTargetVel - currentVeloX), 2) + (Math.pow((yTargetVel - currentVeloY), 2))));
+            }
+            telemetry.addData("pathBroken", (pathBroken) ? 1 : 0);
+            telemetry.addData("Battery Voltage", dt.getVoltage());
             telemetry.update();
         }
     }
@@ -339,24 +389,16 @@ public class TrajFollower {
             poseEstimate = dt.getPoseEstimate();
 
             if (Objects.isNull(dt.getPoseVelocity())) {
-//            return true;
                 telemetry.addData("calc vel", 0);
             } else {
                 Pose2d poseVelo = dt.getPoseVelocity();
 
-//        if (!Objects.isNull(poseVelo)) {
                 double currentVeloX = poseVelo.getX();
                 double currentVeloY = poseVelo.getY();
 
                 double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
                 telemetry.addData("calc vel", totalVelo);
             }
-
-//            if (calcVelError(poseEstimate, desiredPose)) {
-//                telemetry.addData("calc vel", 1);
-//            } else {
-//                telemetry.addData("calc vel", 0);
-//            }
 
             //Heading
             double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
@@ -430,6 +472,20 @@ public class TrajFollower {
             telemetry.addData("y error", bezier_y.getD() - poseEstimate.getY());
             telemetry.addData("x error", bezier_x.getD() - poseEstimate.getX());
             telemetry.addData("heading error", desired_heading-poseEstimate.getHeading());
+            telemetry.addData("Error to Inst. Pos", Math.sqrt(Math.pow((bezier_x.bezier_get(u) - poseEstimate.getX()), 2) + (Math.pow((bezier_y.bezier_get(u) - poseEstimate.getY()), 2))));
+            if (Objects.isNull(dt.getPoseVelocity())) {
+                telemetry.addData("Error to Inst. Vel", 0);
+            } else {
+                Pose2d poseVelo = dt.getPoseVelocity();
+
+                double currentVeloX = poseVelo.getX();
+                double currentVeloY = poseVelo.getY();
+
+//                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+                telemetry.addData("Error to Inst. Vel", Math.sqrt(Math.pow((x_vel - currentVeloX), 2) + (Math.pow((x_vel - currentVeloY), 2))));
+            }
+            telemetry.addData("Battery Voltage", dt.getVoltage());
+            telemetry.update();
             telemetry.update();
         }
     }

@@ -30,9 +30,13 @@ public class LinearTest extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
         Drive drive = new Drive(hardwareMap, telemetry);
-        telemetry.addData("Sign", 0);
-        telemetry.addData("currHeading", 0);
-        telemetry.addData("In if condition", 0);
+//        telemetry.addData("Sign", 0);
+//        telemetry.addData("currHeading", 0);
+//        telemetry.addData("In if condition", 0);
+        telemetry.addData("Error to Inst. Pos", 0);
+        telemetry.addData("Error to Inst. Vel", 0);
+        telemetry.addData("pathBroken", 0);
+        telemetry.addData("Battery Voltage", 0);
         telemetry.update();
 
         waitForStart();
