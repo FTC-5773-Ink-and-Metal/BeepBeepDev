@@ -41,6 +41,9 @@ public class BezierTest extends LinearOpMode {
         BezierCurve bezier_x = new BezierCurve(p1X, p2X, p3X, p4X);
         BezierCurve bezier_y = new BezierCurve(p1Y, p2Y, p3Y, p4Y);
 
+        telemetry.addData("calc vel", 0);
+        telemetry.update();
+
         waitForStart();
 
         drive.followTrajectory(bezier_x, bezier_y, Math.toRadians(desired_heading), time_factor);

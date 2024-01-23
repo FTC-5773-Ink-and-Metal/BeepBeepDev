@@ -87,7 +87,7 @@ public class TrajFollower {
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
-        while (!calcError(poseEstimate, desiredPose)) {
+        while (!atTarget(poseEstimate, desiredPose) && !isMotionless()) {
             poseEstimate = dt.getPoseEstimate();
 
             double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
@@ -181,8 +181,8 @@ public class TrajFollower {
 //        int direction = 1;
         // !calcError(error, poseEstimate, desiredPose) &&
         //  && (motionProfile.getTotalTime() >= timer.time())
-
-        while (!calcError(poseEstimate, desiredPose) && !calcVelError(poseEstimate, desiredPose)) {
+        // TODO: add the while true version of the conditional
+        while (!atTarget(poseEstimate, desiredPose) && !isMotionless()) {
             double motionMultiplier = 1;
 //            direction *= -1;
 
@@ -313,7 +313,13 @@ public class TrajFollower {
         Pose2d poseEstimate = dt.getPoseEstimate();
         Pose2d desiredPose = new Pose2d(bezier_x.getD(), bezier_y.getD(), desired_heading);
 
-        Pose2d startPose = poseEstimate;
+//        Pose2d startPose = poseEstimate;
+        double startHeading = poseEstimate.getHeading();
+        desired_heading = desired_heading - startHeading;
+        double direction = getTurnDirection(startHeading, desired_heading);
+        double angularDisplacement = correctAngle(desired_heading*direction);
+        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
+        double target = angleWrap(desired_heading);
 
         BezierCurveCalc bezier_calc = new BezierCurveCalc();
 //        BezierCurve bezier_y_temp = new BezierCurve(bezier_x.getA()-startPose.getY(), bezier_x.getB()-startPose.getY(), bezier_x.getC()-startPose.getY(), bezier_x.getD()-startPose.getY());
@@ -325,15 +331,57 @@ public class TrajFollower {
 //        while(timer.time() >= motionProfile.getTotalTime() && )
         //  && motionProfile.getTotalTime() >= 1.5 * timer.time()
 
-        while(!calcError(poseEstimate, desiredPose)) {
+        while (true) {
+            if (isMotionless() && atTarget(poseEstimate, desiredPose)) {
+                break;
+            }
+
             poseEstimate = dt.getPoseEstimate();
+
+            if (Objects.isNull(dt.getPoseVelocity())) {
+//            return true;
+                telemetry.addData("calc vel", 0);
+            } else {
+                Pose2d poseVelo = dt.getPoseVelocity();
+
+//        if (!Objects.isNull(poseVelo)) {
+                double currentVeloX = poseVelo.getX();
+                double currentVeloY = poseVelo.getY();
+
+                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+                telemetry.addData("calc vel", totalVelo);
+            }
+
+//            if (calcVelError(poseEstimate, desiredPose)) {
+//                telemetry.addData("calc vel", 1);
+//            } else {
+//                telemetry.addData("calc vel", 0);
+//            }
+
+            //Heading
+            double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
+            double velHeading = motionProfileHeading.getVelocity(timer.time());
+            double accelHeading = motionProfileHeading.getAcceleration(timer.time());
+
+            double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
+            powAng = direction * (powAng + kS_ang * powAng);
+            double currHeading = angleWrap(poseEstimate.getHeading() - startHeading);
+
+            if (motionProfileHeading.isFinished(timer.time())) {
+//                telemetry.addData("In if condition", 1);
+                if (Math.abs(angularDisplacement) == Math.toRadians(180)) {
+                    instantTargetPositionHeading = Math.toRadians(180) * currHeading/Math.abs(currHeading);
+                } else {
+                    instantTargetPositionHeading = target;
+                }
+            }
 
             // Position
             instantTargetPosition = motionProfile.getPosition(time_factor * timer.time());
             u = bezier_calc.bezier_param_of_disp(instantTargetPosition, bezier_calc.get_sums(), bezier_calc.get_upsilon());
             control_signal_x = px.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
             control_signal_y = py.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
-            control_signal_heading = pheading.calculate(angleWrap(desired_heading), angleWrap(poseEstimate.getHeading()));
+            control_signal_heading = pheading.calculate(instantTargetPositionHeading, currHeading) + powAng;
 
 //            telemetry.addData("target x", bezier_x.bezier_get(u));
 //            telemetry.addData("target y", bezier_y.bezier_get(u))   ;
@@ -363,6 +411,7 @@ public class TrajFollower {
             totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x; // add control signals
             totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
 
+
             Vector2d input = new Vector2d(
                     totalX,
                     totalY
@@ -380,11 +429,12 @@ public class TrajFollower {
 
             telemetry.addData("y error", bezier_y.getD() - poseEstimate.getY());
             telemetry.addData("x error", bezier_x.getD() - poseEstimate.getX());
+            telemetry.addData("heading error", desired_heading-poseEstimate.getHeading());
             telemetry.update();
         }
     }
 
-    private boolean calcError(Pose2d curPose, Pose2d desiredPose) {
+    private boolean atTarget(Pose2d curPose, Pose2d desiredPose) {
         double x = Math.pow(desiredPose.getX() - curPose.getX(), 2);
         double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
         double dist = Math.sqrt(x+y);
@@ -396,19 +446,19 @@ public class TrajFollower {
         return false;
     }
 
-    private boolean calcVelError(Pose2d curPose, Pose2d desiredPose) {
-        double x = Math.pow(desiredPose.getX() - curPose.getX(), 2);
-        double y = Math.pow(desiredPose.getY() - curPose.getY(), 2);
-        double dist = Math.sqrt(x+y);
+    private boolean isMotionless() {
+        if (Objects.isNull(dt.getPoseVelocity())) {
+            return false;
+        }
 
-        double headingError = Math.abs(desiredPose.getHeading() - curPose.getHeading());
+        Pose2d poseVelo = dt.getPoseVelocity();
 
-        Pose2d poseVelo = Objects.requireNonNull(dt.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
         double currentVeloX = poseVelo.getX();
         double currentVeloY = poseVelo.getY();
+
         double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
 
-        if (dist <= translational_error && headingError < angular_error && totalVelo < velo_error) return true;
+        if (totalVelo < velo_error) return true;
 
         return false;
     }
