@@ -28,6 +28,7 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngA
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxAngVel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.maxVel;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.pathBreakerLinear;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.pathSaverLinear;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.translational_error;
 import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.velo_error;
 
@@ -88,8 +89,12 @@ public class TrajFollower {
         ElapsedTime timer = new ElapsedTime();
         timer.time();
 
-        while (!atTarget(poseEstimate, desiredPose) && !isMotionless()) {
+        while (true) {
             poseEstimate = dt.getPoseEstimate();
+
+            if (isMotionless() && atTarget(poseEstimate, desiredPose)) {
+                break;
+            }
 
             double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
             double velHeading = motionProfileHeading.getVelocity(timer.time());
@@ -197,7 +202,7 @@ public class TrajFollower {
             py = new PIDController(Kp_y, Ki_y, Kd_y);
             pheading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
 
-            double currTime = 0;
+            double currTime = timer.time();
 
             if (pathBroken) {
 //                timer = new ElapsedTime((long) pauseTime);
@@ -208,7 +213,7 @@ public class TrajFollower {
             double xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
             double yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
 
-            if (pathBreakerLinear > Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2)))) {
+            if (pathSaverLinear > Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))) && pathBroken) {
                 pathBroken = false;
                 timer = new ElapsedTime((long) pauseTime);
                 currTime = timer.time();
@@ -280,6 +285,7 @@ public class TrajFollower {
                 xTargetPos = poseEstimate.getX();
                 powY = 0;
                 yTargetPos = poseEstimate.getY();
+                instantTargetPositionHeading = poseEstimate.getHeading();
                 pauseTime = timer.time();
             }
 
@@ -346,6 +352,7 @@ public class TrajFollower {
             }
             telemetry.addData("pathBroken", (pathBroken) ? 1 : 0);
             telemetry.addData("Battery Voltage", dt.getVoltage());
+            telemetry.addData("pathBroken", pathBroken);
             telemetry.update();
         }
     }

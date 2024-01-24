@@ -106,6 +106,7 @@ public class AutoAprilTagAlign extends LinearOpMode {
                 path_angle = Math.atan2(desired_y, desired_x); // check
                 motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
 
+
                 drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 
                 goToTag = true;
