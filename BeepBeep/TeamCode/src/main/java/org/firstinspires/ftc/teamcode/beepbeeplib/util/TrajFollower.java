@@ -44,6 +44,7 @@ import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class TrajFollower {
@@ -591,6 +592,10 @@ public class TrajFollower {
 
             dt.update();
         }
+    }
+
+    public void followTrajSeequence(ArrayList<Trajectory> trajs) {
+
     }
 
     private boolean atTarget(Pose2d curPose, Pose2d desiredPose) {
