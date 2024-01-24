@@ -204,24 +204,24 @@ public class TrajFollower {
 
             double currTime = timer.time();
 
-            if (pathBroken) {
-//                timer = new ElapsedTime((long) pauseTime);
-                currTime = pauseTime;
-            }
+//            if (pathBroken) {
+////                timer = new ElapsedTime((long) pauseTime);
+//                currTime = pauseTime;
+//            }
 
             double instantTargetPosition = motionProfile.getPosition(currTime);
             double xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
             double yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
 
-            if (pathSaverLinear > Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))) && pathBroken) {
-                pathBroken = false;
-                timer = new ElapsedTime((long) pauseTime);
-                currTime = timer.time();
-            }
+//            if (pathSaverLinear > Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))) && pathBroken) {
+//                pathBroken = false;
+//                timer = new ElapsedTime((long) pauseTime);
+//                currTime = timer.time();
+//            }
 
-            instantTargetPosition = motionProfile.getPosition(currTime);
-            xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
-            yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
+//            instantTargetPosition = motionProfile.getPosition(currTime);
+//            xTargetPos = instantTargetPosition * Math.cos(path_angle) + startPose.getX();
+//            yTargetPos = instantTargetPosition * Math.sin(path_angle) + startPose.getY();
 
 //            double instantTargetPosition = motionProfile.getPosition(currTime);
 
@@ -338,21 +338,21 @@ public class TrajFollower {
 //            telemetry.addData("yError", yTargetPos - poseEstimate.getY());
 //            telemetry.addData("HeadingError", desired_heading - poseEstimate.getHeading());
 //            telemetry.addData("error", direction*motionProfile.getVelocity(timer.time()) - currentVelo);
-            telemetry.addData("Error to Inst. Pos", Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))));
-            if (Objects.isNull(dt.getPoseVelocity())) {
-                telemetry.addData("Error to Inst. Vel", 0);
-            } else {
-                Pose2d poseVelo = dt.getPoseVelocity();
-
-                double currentVeloX = poseVelo.getX();
-                double currentVeloY = poseVelo.getY();
-
-//                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
-                telemetry.addData("Error to Inst. Vel", Math.sqrt(Math.pow((xTargetVel - currentVeloX), 2) + (Math.pow((yTargetVel - currentVeloY), 2))));
-            }
-            telemetry.addData("pathBroken", (pathBroken) ? 1 : 0);
-            telemetry.addData("Battery Voltage", dt.getVoltage());
-            telemetry.addData("pathBroken", pathBroken);
+//            telemetry.addData("Error to Inst. Pos", Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))));
+//            if (Objects.isNull(dt.getPoseVelocity())) {
+//                telemetry.addData("Error to Inst. Vel", 0);
+//            } else {
+//                Pose2d poseVelo = dt.getPoseVelocity();
+//
+//                double currentVeloX = poseVelo.getX();
+//                double currentVeloY = poseVelo.getY();
+//
+////                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+//                telemetry.addData("Error to Inst. Vel", Math.sqrt(Math.pow((xTargetVel - currentVeloX), 2) + (Math.pow((yTargetVel - currentVeloY), 2))));
+//            }
+//            telemetry.addData("pathBroken", (pathBroken) ? 1 : 0);
+//            telemetry.addData("Battery Voltage", dt.getVoltage());
+//            telemetry.addData("pathBroken", pathBroken);
             telemetry.update();
         }
     }
@@ -479,19 +479,19 @@ public class TrajFollower {
             telemetry.addData("y error", bezier_y.getD() - poseEstimate.getY());
             telemetry.addData("x error", bezier_x.getD() - poseEstimate.getX());
             telemetry.addData("heading error", desired_heading-poseEstimate.getHeading());
-            telemetry.addData("Error to Inst. Pos", Math.sqrt(Math.pow((bezier_x.bezier_get(u) - poseEstimate.getX()), 2) + (Math.pow((bezier_y.bezier_get(u) - poseEstimate.getY()), 2))));
-            if (Objects.isNull(dt.getPoseVelocity())) {
-                telemetry.addData("Error to Inst. Vel", 0);
-            } else {
-                Pose2d poseVelo = dt.getPoseVelocity();
-
-                double currentVeloX = poseVelo.getX();
-                double currentVeloY = poseVelo.getY();
-
-//                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
-                telemetry.addData("Error to Inst. Vel", Math.sqrt(Math.pow((x_vel - currentVeloX), 2) + (Math.pow((x_vel - currentVeloY), 2))));
-            }
-            telemetry.addData("Battery Voltage", dt.getVoltage());
+//            telemetry.addData("Error to Inst. Pos", Math.sqrt(Math.pow((bezier_x.bezier_get(u) - poseEstimate.getX()), 2) + (Math.pow((bezier_y.bezier_get(u) - poseEstimate.getY()), 2))));
+//            if (Objects.isNull(dt.getPoseVelocity())) {
+//                telemetry.addData("Error to Inst. Vel", 0);
+//            } else {
+//                Pose2d poseVelo = dt.getPoseVelocity();
+//
+//                double currentVeloX = poseVelo.getX();
+//                double currentVeloY = poseVelo.getY();
+//
+////                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+//                telemetry.addData("Error to Inst. Vel", Math.sqrt(Math.pow((x_vel - currentVeloX), 2) + (Math.pow((x_vel - currentVeloY), 2))));
+//            }
+//            telemetry.addData("Battery Voltage", dt.getVoltage());
             telemetry.update();
             telemetry.update();
         }

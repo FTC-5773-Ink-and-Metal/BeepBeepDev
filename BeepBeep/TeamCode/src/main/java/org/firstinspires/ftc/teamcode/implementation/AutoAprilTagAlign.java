@@ -41,19 +41,6 @@ public class AutoAprilTagAlign extends LinearOpMode {
 
         drive.setPoseEstimate(new Pose2d(0, 0, 0));
 
-        // Variables for PID control
-        PIDController pid_x = new PIDController(Kp_x, Ki_x, Kd_x);
-        PIDController pid_y = new PIDController(Kp_y, Ki_y, Kd_y);
-        PIDController pid_heading = new PIDController(Kp_heading, Ki_heading, Kd_heading);
-
-        double control_signal_x = 0;
-        double control_signal_y = 0;
-        double control_signal_heading = 0;
-
-        double path_distance = 0;
-        double path_angle = 0;
-        MotionProfile motionProfile = null;
-
         AprilTagProcessor tagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
@@ -77,66 +64,60 @@ public class AutoAprilTagAlign extends LinearOpMode {
 
         double desired_x = 0, desired_y = 0, desired_heading = 0;
         boolean goToTag = false;
+        boolean tagVisible = false;
 
         ElapsedTime timer = new ElapsedTime();
 
         waitForStart();
 
         while (!isStopRequested() && opModeIsActive()) {
+            tagVisible = false;
+
             if (tagProcessor.getDetections().size() > 0) {
                 for (AprilTagDetection tag : tagProcessor.getDetections()) {
-                    if (tag.id == 4) {
-                        desired_y = tag.ftcPose.x + 6;
-                        desired_x = -1 * tag.ftcPose.y + targetDist;
-                        desired_heading = (tag.ftcPose.yaw);
+                    tagVisible = true;
+                    desired_y = tag.ftcPose.x;
+                    desired_x = -1 * tag.ftcPose.y + targetDist;
+                    desired_heading = (tag.ftcPose.yaw);
 
-                        telemetry.addData("x", tag.ftcPose.x);
-                        telemetry.addData("y", tag.ftcPose.y);
+                    telemetry.addData("tag id", tag.id);
+                    telemetry.addData("x", tag.ftcPose.x);
+                    telemetry.addData("y", tag.ftcPose.y);
 //                        telemetry.addData("z", tag.ftcPose.z);
 //                        telemetry.addData("roll", tag.ftcPose.roll);
 //                        telemetry.addData("pitch", tag.ftcPose.pitch);
-                        telemetry.addData("yaw", tag.ftcPose.yaw);
-                        telemetry.update();
-                    } else if (tag.id == 5) {
-                        desired_y = tag.ftcPose.x;
-                        desired_x = -1 * tag.ftcPose.y + targetDist;
-                        desired_heading = (tag.ftcPose.yaw);
-
-                        telemetry.addData("x", tag.ftcPose.x);
-                        telemetry.addData("y", tag.ftcPose.y);
-//                        telemetry.addData("z", tag.ftcPose.z);
-//                        telemetry.addData("roll", tag.ftcPose.roll);
-//                        telemetry.addData("pitch", tag.ftcPose.pitch);
-                        telemetry.addData("yaw", tag.ftcPose.yaw);
-                        telemetry.update();
-                    } else if (tag.id == 6) {
-                        desired_y = tag.ftcPose.x - 6;
-                        desired_x = -1 * tag.ftcPose.y + targetDist;
-                        desired_heading = (tag.ftcPose.yaw);
-
-                        telemetry.addData("x", tag.ftcPose.x);
-                        telemetry.addData("y", tag.ftcPose.y);
-//                        telemetry.addData("z", tag.ftcPose.z);
-//                        telemetry.addData("roll", tag.ftcPose.roll);
-//                        telemetry.addData("pitch", tag.ftcPose.pitch);
-                        telemetry.addData("yaw", tag.ftcPose.yaw);
-                        telemetry.update();
-                    }
+                    telemetry.addData("yaw", tag.ftcPose.yaw);
+                    telemetry.update();
                 }
             }
 
-            if (gamepad1.a && !goToTag) {
+            if (gamepad1.a && !goToTag && tagVisible) {
                 while (gamepad1.a) {}
-
                 drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
-
                 goToTag = true;
-                timer.reset();
-                timer.time();
+            } else {
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                -gamepad1.left_stick_y,
+                                -gamepad1.left_stick_x,
+                                -gamepad1.right_stick_x
+                        )
+                );
+
+                drive.update();
             }
 
             if (goToTag) {
                 drive.followTrajectory(desired_x, desired_y, correctAngle(desired_heading));
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                0,
+                                0,
+                                0
+                        )
+                );
+
+                drive.update();
             }
 
             telemetry.update();
