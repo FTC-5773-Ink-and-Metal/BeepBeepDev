@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeep.PIDController;
+import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -34,7 +35,7 @@ public class AutoAprilTagAlign extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        Drive drive = new Drive(hardwareMap, telemetry);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
@@ -84,10 +85,34 @@ public class AutoAprilTagAlign extends LinearOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             if (tagProcessor.getDetections().size() > 0) {
                 for (AprilTagDetection tag : tagProcessor.getDetections()) {
-                    if (tag.id == tagID) {
+                    if (tag.id == 4) {
+                        desired_y = tag.ftcPose.x + 6;
+                        desired_x = -1 * tag.ftcPose.y + targetDist;
+                        desired_heading = (tag.ftcPose.yaw);
+
+                        telemetry.addData("x", tag.ftcPose.x);
+                        telemetry.addData("y", tag.ftcPose.y);
+//                        telemetry.addData("z", tag.ftcPose.z);
+//                        telemetry.addData("roll", tag.ftcPose.roll);
+//                        telemetry.addData("pitch", tag.ftcPose.pitch);
+                        telemetry.addData("yaw", tag.ftcPose.yaw);
+                        telemetry.update();
+                    } else if (tag.id == 5) {
                         desired_y = tag.ftcPose.x;
                         desired_x = -1 * tag.ftcPose.y + targetDist;
-                        desired_heading = angleWrap(-1 * tag.ftcPose.yaw);
+                        desired_heading = (tag.ftcPose.yaw);
+
+                        telemetry.addData("x", tag.ftcPose.x);
+                        telemetry.addData("y", tag.ftcPose.y);
+//                        telemetry.addData("z", tag.ftcPose.z);
+//                        telemetry.addData("roll", tag.ftcPose.roll);
+//                        telemetry.addData("pitch", tag.ftcPose.pitch);
+                        telemetry.addData("yaw", tag.ftcPose.yaw);
+                        telemetry.update();
+                    } else if (tag.id == 6) {
+                        desired_y = tag.ftcPose.x - 6;
+                        desired_x = -1 * tag.ftcPose.y + targetDist;
+                        desired_heading = (tag.ftcPose.yaw);
 
                         telemetry.addData("x", tag.ftcPose.x);
                         telemetry.addData("y", tag.ftcPose.y);
@@ -102,10 +127,6 @@ public class AutoAprilTagAlign extends LinearOpMode {
 
             if (gamepad1.a && !goToTag) {
                 while (gamepad1.a) {}
-                path_distance = Math.sqrt(Math.pow(desired_x, 2) + Math.pow(desired_y, 2));
-                path_angle = Math.atan2(desired_y, desired_x); // check
-                motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
-
 
                 drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 
@@ -115,7 +136,7 @@ public class AutoAprilTagAlign extends LinearOpMode {
             }
 
             if (goToTag) {
-
+                drive.followTrajectory(desired_x, desired_y, correctAngle(desired_heading));
             }
 
             telemetry.update();
@@ -132,6 +153,18 @@ public class AutoAprilTagAlign extends LinearOpMode {
         }
 
         // keep in mind that the result is in radians
+        return radians;
+    }
+
+    public double correctAngle(double radians) {
+        while (radians < 0) {
+            radians += 2*Math.PI;
+        }
+
+        while (radians >= 2*Math.PI) {
+            radians -= 2*Math.PI;
+        }
+
         return radians;
     }
 }
