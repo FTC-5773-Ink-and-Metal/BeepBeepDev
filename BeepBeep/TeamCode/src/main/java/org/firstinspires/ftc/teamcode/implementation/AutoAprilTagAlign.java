@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.implementation;
 
-import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.*;
-
 import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -17,10 +15,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
-import org.firstinspires.ftc.teamcode.beepbeep.PIDController;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
-import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -30,8 +25,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @TeleOp
 public class AutoAprilTagAlign extends LinearOpMode {
 
-    public static int tagID = 5;
     public static int targetDist = 15;
+    public static int targetID = 5;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -73,21 +68,28 @@ public class AutoAprilTagAlign extends LinearOpMode {
         while (!isStopRequested() && opModeIsActive()) {
             tagVisible = false;
 
+            if (gamepad1.right_bumper) {
+                targetID++;
+                if (targetID > 6) targetID = 4;
+            }
+
             if (tagProcessor.getDetections().size() > 0) {
                 for (AprilTagDetection tag : tagProcessor.getDetections()) {
-                    tagVisible = true;
-                    desired_y = tag.ftcPose.x;
-                    desired_x = -1 * tag.ftcPose.y + targetDist;
-                    desired_heading = (tag.ftcPose.yaw);
+                    if (tag.id == targetID) {
+                        tagVisible = true;
+                        desired_y = tag.ftcPose.x;
+                        desired_x = -1 * tag.ftcPose.y + targetDist;
+                        desired_heading = (tag.ftcPose.yaw);
 
-                    telemetry.addData("tag id", tag.id);
-                    telemetry.addData("x", tag.ftcPose.x);
-                    telemetry.addData("y", tag.ftcPose.y);
+                        telemetry.addData("tag id", tag.id);
+                        telemetry.addData("x", tag.ftcPose.x);
+                        telemetry.addData("y", tag.ftcPose.y);
 //                        telemetry.addData("z", tag.ftcPose.z);
 //                        telemetry.addData("roll", tag.ftcPose.roll);
 //                        telemetry.addData("pitch", tag.ftcPose.pitch);
-                    telemetry.addData("yaw", tag.ftcPose.yaw);
-                    telemetry.update();
+                        telemetry.addData("yaw", tag.ftcPose.yaw);
+                        telemetry.update();
+                    }
                 }
             }
 
@@ -118,8 +120,11 @@ public class AutoAprilTagAlign extends LinearOpMode {
                 );
 
                 drive.update();
+
+                goToTag = false;
             }
 
+            telemetry.addData("targetID", targetID);
             telemetry.update();
         }
     }
