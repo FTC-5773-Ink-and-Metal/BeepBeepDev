@@ -516,7 +516,7 @@ public class TrajFollower {
 
         double startHeading = poseEstimate.getHeading();
         double desired_heading = bz.desiredHeading - startHeading;
-        double direction = getTurnDirection(startHeading, desired_heading);
+        double direction = bz.turn_direction();
         double angularDisplacement = correctAngle(desired_heading*direction);
         MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
         double target = angleWrap(desired_heading);
@@ -525,7 +525,10 @@ public class TrajFollower {
 
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, curve_length);
 
-        while(!(isMotionless() && atTarget(poseEstimate, desiredPose))) {
+        while (true) {
+            if (isMotionless() && atTarget(poseEstimate, desiredPose)) {
+                break;
+            }
             poseEstimate = dt.getPoseEstimate();
 
             if(!Objects.isNull(dt.getPoseVelocity())) {
