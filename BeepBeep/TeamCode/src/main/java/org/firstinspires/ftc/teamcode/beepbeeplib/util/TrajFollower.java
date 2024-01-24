@@ -49,12 +49,15 @@ import java.util.Objects;
 public class TrajFollower {
     Drive dt;
     Telemetry telemetry;
+    PIDController pX, pY, pHeading;
 
 
-    public TrajFollower(Drive dt, Telemetry telemetry) {
+    public TrajFollower(Drive dt, Telemetry telemetry, PIDController px, PIDController py, PIDController pheading) {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         this.telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         this.dt = dt;
+
+        this.pX = px; this.pY = py; this.pHeading = pheading;
     }
 
     /**
@@ -494,6 +497,99 @@ public class TrajFollower {
 //            telemetry.addData("Battery Voltage", dt.getVoltage());
             telemetry.update();
             telemetry.update();
+        }
+    }
+
+    public void followBezier(BezierTraj bz) {
+        ElapsedTime timer = new ElapsedTime();
+        timer.time();
+
+        double control_signal_x = 0, control_signal_y = 0, control_signal_heading = 0;
+        double instantTargetPosition, u;
+        double instantTargetVelocity, duds, dxdu, dydu, x_vel, y_vel;
+        double instantTargetAcceleration, du2ds, dx2du, dy2du, x_accel, y_accel;
+        double totalY, totalX;
+
+        Pose2d poseEstimate = dt.getPoseEstimate();
+        Pose2d desiredPose = new Pose2d(bz.x.getD(), bz.y.getD(), bz.desiredHeading);
+
+        double startHeading = poseEstimate.getHeading();
+        double desired_heading = bz.desiredHeading - startHeading;
+        double direction = getTurnDirection(startHeading, desired_heading);
+        double angularDisplacement = correctAngle(desired_heading*direction);
+        MotionProfile motionProfileHeading = new MotionProfile(maxAngAccel, maxAngVel, angularDisplacement); // 270 becomes 90
+        double target = angleWrap(desired_heading);
+
+        double curve_length = bz.bezier_length();
+
+        MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, curve_length);
+
+        while(!(isMotionless() && atTarget(poseEstimate, desiredPose))) {
+            poseEstimate = dt.getPoseEstimate();
+
+            if(!Objects.isNull(dt.getPoseVelocity())) {
+                Pose2d poseVelo = dt.getPoseVelocity();
+
+                double currentVeloX = poseVelo.getX();
+                double currentVeloY = poseVelo.getY();
+
+                double totalVelo = Math.sqrt(Math.pow(currentVeloX, 2) + Math.pow(currentVeloY, 2));
+                telemetry.addData("calc vel", totalVelo);
+            } else telemetry.addData("calc vel", 0);
+
+            double instantTargetPositionHeading = direction * motionProfileHeading.getPosition(timer.time());
+            double velHeading = motionProfileHeading.getVelocity(timer.time());
+            double accelHeading = motionProfileHeading.getAcceleration(timer.time());
+
+            double powAng = (velHeading * kV_ang + accelHeading * kA_ang);
+            powAng = direction * (powAng + kS_ang * powAng);
+            double currHeading = angleWrap(poseEstimate.getHeading() - startHeading);
+
+            if (motionProfileHeading.isFinished(timer.time())) {
+                if (Math.abs(angularDisplacement) == Math.toRadians(180)) instantTargetPositionHeading = Math.toRadians(180) * currHeading/Math.abs(currHeading);
+                else instantTargetPositionHeading = target;
+            }
+
+            instantTargetPosition = motionProfile.getPosition(timer.time());
+            u = bz.bezier_param_of_disp(instantTargetPosition, bz.get_sums(), bz.get_upsilon());
+            control_signal_x = pX.calculate(bz.x.bezier_get(u), poseEstimate.getX());
+            control_signal_y = pY.calculate(bz.y.bezier_get(u), poseEstimate.getY());
+            control_signal_heading = pHeading.calculate(instantTargetPositionHeading, currHeading) + powAng;
+
+            instantTargetVelocity = motionProfile.getVelocity(timer.time());
+            duds = bz.bezier_param_of_disp_deriv(u);
+            dxdu = bz.x.bezier_deriv(u);
+            dydu = bz.y.bezier_deriv(u);
+            x_vel = dxdu * duds * instantTargetVelocity;
+            y_vel = dydu * duds * instantTargetVelocity;
+
+            // Acceleration
+            // (s'(t))^2 * (u'(s(t)))^2 * x''(u(s(t))) + ((s'(t))^2 * u''(s(t)) + s''(t) * u'(s(t))) * x'(u(s(t)))
+            instantTargetAcceleration = motionProfile.getAcceleration(timer.time());
+            du2ds = bz.bezier_param_of_disp_deriv2(u);
+            dx2du = bz.x.bezier_deriv2(u);
+            dy2du = bz.y.bezier_deriv2(u);
+            x_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dx2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dxdu;
+            y_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dy2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dydu;
+
+            // Combined
+            totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x; // add control signals
+            totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
+
+            Vector2d input = new Vector2d(
+                    totalX,
+                    totalY
+            ).rotated(-poseEstimate.getHeading());
+
+            dt.setWeightedDrivePower(
+                    new Pose2d(
+                            input.getX(),
+                            input.getY(),
+                            control_signal_heading
+                    )
+            );
+
+            dt.update();
         }
     }
 

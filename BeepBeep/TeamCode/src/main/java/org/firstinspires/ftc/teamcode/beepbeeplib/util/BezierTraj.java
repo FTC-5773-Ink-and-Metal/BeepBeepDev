@@ -8,13 +8,16 @@ import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
 public class BezierTraj extends Trajectory {
     private double[] sums, upsilon;
     
-    Vector2d i1, i2;
-    BezierCurve x, y;
+    public Vector2d i1, i2;
+    public BezierCurve x, y;
+    public double desiredHeading;
     
     public BezierTraj(Pose2d startPose, Pose2d endPose,Vector2d i1, Vector2d i2) {
         super(startPose, endPose);
         this.i1 = i1;
         this.i2 = i2;
+
+        this.desiredHeading = endPose.getHeading();
         
         this.x = new BezierCurve(startPose.getX(), i1.getX(), i2.getX(), endPose.getX());
         this.y = new BezierCurve(startPose.getY(), i1.getY(), i2.getY(), endPose.getY());
