@@ -5,10 +5,11 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 public class LinearTraj extends Trajectory {
 
     public LinearTraj(Pose2d startPose, Pose2d endPose) {
-        super(startPose, endPose);
+        super(startPose, endPose, "linear");
     }
 
-    public double path_distance() {
+    @Override
+    public double curveLength() {
         return Math.sqrt(Math.pow(endPose.getX()-startPose.getX(), 2) + Math.pow(endPose.getY()-startPose.getY(), 2));
     }
 

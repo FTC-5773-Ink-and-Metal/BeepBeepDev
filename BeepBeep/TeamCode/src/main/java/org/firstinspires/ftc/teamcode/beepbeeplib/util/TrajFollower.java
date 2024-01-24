@@ -597,8 +597,76 @@ public class TrajFollower {
         }
     }
 
-    public void followTrajSeequence(ArrayList<Trajectory> trajs) {
+    enum Paths {
+        BEZIER,
+        LINEAR,
+        TURN
+    }
 
+    public void followTrajSeequence(ArrayList<Trajectory> trajs) {
+        ElapsedTime timer = new ElapsedTime();
+        timer.time();
+
+        double totalLength = 0;
+        for(Trajectory t : trajs) totalLength += t.curveLength();
+
+        MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, totalLength);
+        MotionProfile motionProfileAng = new MotionProfile(maxAngAccel, maxAngVel, Math.toRadians(trajs.get(trajs.size() - 1).endPose.getHeading()));
+
+        double curDistTravelled = 0;
+        int curPath = 0;
+
+        Paths curPathType = Paths.valueOf(trajs.get(0).pathType);
+
+        while(true) {
+            double instantAngPosition = motionProfileAng.getPosition(timer.time());
+            double angVel = motionProfileAng.getVelocity(timer.time());
+            double angAccel = motionProfileAng.getAcceleration(timer.time());
+
+            double powAng = angVel * kV_ang + angAccel * kA_ang;
+            powAng = powAng + kS_ang * powAng/Math.abs(powAng);
+
+            double instantTargetPosition = motionProfile.getPosition(timer.time());
+            curDistTravelled += instantTargetPosition;
+            double instantTargetVelocity = motionProfile.getVelocity(timer.time());
+            double instantTargetAcceleration = motionProfile.getAcceleration(timer.time());
+
+            switch (curPathType) {
+                case BEZIER:
+                    u = bezier_calc.bezier_param_of_disp(instantTargetPosition-path_distance, bezier_calc.get_sums(), bezier_calc.get_upsilon());
+                    control_signal_x = pid_x.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
+                    control_signal_y = pid_y.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
+
+                    // Velocity
+                    // s′(t)u′(s(t))x′(u(s(t)))
+                    duds = bezier_calc.bezier_param_of_disp_deriv(bezier_x, bezier_y, u);
+                    dxdu = bezier_x.bezier_deriv(u);
+                    dydu = bezier_y.bezier_deriv(u);
+                    x_vel = dxdu * duds * instantTargetVelocity;
+                    y_vel = dydu * duds * instantTargetVelocity;
+
+                    // Acceleration
+                    // (s'(t))^2 * (u'(s(t)))^2 * x''(u(s(t))) + ((s'(t))^2 * u''(s(t)) + s''(t) * u'(s(t))) * x'(u(s(t)))
+                    du2ds = bezier_calc.bezier_param_of_disp_deriv2(bezier_x, bezier_y, u);
+                    dx2du = bezier_x.bezier_deriv2(u);
+                    dy2du = bezier_y.bezier_deriv2(u);
+                    x_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dx2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dxdu;
+                    y_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dy2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dydu;
+
+                    // Combined
+                    totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x;
+                    totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
+                    control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading2)), angleWrap(poseEstimate.getHeading())) + powAng;
+                case LINEAR:
+
+            }
+
+            double d = 0;
+            for(int i = 0; i < trajs.size(); ++i) {
+                if(curDistTravelled >= d) curPathType.valueOf(trajs.get(i).pathType);
+                d += trajs.get(i).curveLength();
+            }
+        }
     }
 
     private boolean atTarget(Pose2d curPose, Pose2d desiredPose) {

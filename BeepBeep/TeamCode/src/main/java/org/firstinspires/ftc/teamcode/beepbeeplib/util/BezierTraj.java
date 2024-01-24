@@ -13,7 +13,7 @@ public class BezierTraj extends Trajectory {
     public double desiredHeading;
     
     public BezierTraj(Pose2d startPose, Pose2d endPose,Vector2d i1, Vector2d i2) {
-        super(startPose, endPose);
+        super(startPose, endPose, "bezier");
         this.i1 = i1;
         this.i2 = i2;
 
@@ -80,6 +80,28 @@ public class BezierTraj extends Trajectory {
     }
 
     public double bezier_length() {
+        double[] upsilon = new double[100];
+        double[] integrand = new double[100];
+        double[] sums = new double[100];
+        for (int i = 0; i < 100; i += 1) {
+            upsilon[i] = i / 100;
+        }
+        double dupsilon = 0.01;
+        double last_sum = 0;
+
+        for (int i = 0; i < 100; i++) {
+            integrand[i] = Math.sqrt(Math.pow(x.bezier_deriv(i/100), 2) + Math.pow(y.bezier_deriv(i/100), 2));
+            sums[i] = last_sum + integrand[i] * dupsilon;
+            last_sum = sums[i];
+        }
+        this.sums = sums;
+        this.upsilon = upsilon;
+
+        return sums[99];
+    }
+
+    @Override
+    public double curveLength() {
         double[] upsilon = new double[100];
         double[] integrand = new double[100];
         double[] sums = new double[100];
