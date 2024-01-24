@@ -99,4 +99,22 @@ public class BezierTraj extends Trajectory {
 
         return sums[99];
     }
+
+    public double turn_direction() {
+        double c_dist = 0, cc_dist = 0;
+
+        if (startPose.getHeading() < endPose.getHeading()) {
+            cc_dist = endPose.getHeading() - startPose.getHeading(); // 190
+            c_dist = startPose.getHeading() + Math.toRadians(360) - endPose.getHeading();
+        } else if (startPose.getHeading() > endPose.getHeading()) {
+            c_dist = endPose.getHeading() + Math.toRadians(360) - startPose.getHeading();
+            cc_dist = startPose.getHeading() - endPose.getHeading();
+        }
+
+        if (c_dist > cc_dist) {
+            return 1;
+        }
+
+        return -1;
+    }
 }
