@@ -7,7 +7,7 @@ public class TurnTraj extends Trajectory {
     private int turnDirection;
 
     public TurnTraj(Pose2d startPose, Pose2d endPose) {
-        super(startPose, endPose);
+        super(startPose, endPose, "linear");
         endPose = new Pose2d(startPose.getX(), startPose.getY(), endPose.getHeading());
 
         double c_dist = 0, cc_dist = 0;

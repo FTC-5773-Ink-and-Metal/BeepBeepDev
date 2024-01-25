@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.BezierTraj;
+import org.firstinspires.ftc.teamcode.beepbeeplib.util.LinearTraj;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.PIDController;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.TrajFollower;
@@ -41,6 +42,10 @@ public class Drive extends SampleMecanumDrive {
 
     public void followTrajectory(BezierTraj bezier) {
         follower.followBezier(bezier);
+    }
+
+    public void followTrajectory(LinearTraj linear) {
+        follower.followLinear(linear);
     }
 
     public void followTrajectory(double x, double y, double desired_heading) {

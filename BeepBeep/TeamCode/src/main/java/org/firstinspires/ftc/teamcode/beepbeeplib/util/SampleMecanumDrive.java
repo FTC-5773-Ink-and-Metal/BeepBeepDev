@@ -139,60 +139,60 @@ public class SampleMecanumDrive extends MecanumDrive {
         );
     }
 
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
+//    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
+//        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+//    }
+//
+//    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
+//        return new TrajectoryBuilder(startPose, reversed, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+//    }
+//
+//    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
+//        return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+//    }
+//
+//    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
+//        return new TrajectorySequenceBuilder(
+//                startPose,
+//                VEL_CONSTRAINT, ACCEL_CONSTRAINT,
+//                MAX_ANG_VEL, MAX_ANG_ACCEL
+//        );
+//    }
 
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
-        return new TrajectoryBuilder(startPose, reversed, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
+//    public void turnAsync(double angle) {
+//        trajectorySequenceRunner.followTrajectorySequenceAsync(
+//                trajectorySequenceBuilder(getPoseEstimate())
+//                        .turn(angle)
+//                        .build()
+//        );
+//    }
 
-    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
-        return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
-    }
+//    public void turn(double angle) {
+//        turnAsync(angle);
+//        waitForIdle();
+//    }
 
-    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
-        return new TrajectorySequenceBuilder(
-                startPose,
-                VEL_CONSTRAINT, ACCEL_CONSTRAINT,
-                MAX_ANG_VEL, MAX_ANG_ACCEL
-        );
-    }
+//    public void followTrajectoryAsync(Trajectory trajectory) {
+//        trajectorySequenceRunner.followTrajectorySequenceAsync(
+//                trajectorySequenceBuilder(trajectory.start())
+//                        .addTrajectory(trajectory)
+//                        .build()
+//        );
+//    }
 
-    public void turnAsync(double angle) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(getPoseEstimate())
-                        .turn(angle)
-                        .build()
-        );
-    }
+//    public void followTrajectory(Trajectory trajectory) {
+//        followTrajectoryAsync(trajectory);
+//        waitForIdle();
+//    }
 
-    public void turn(double angle) {
-        turnAsync(angle);
-        waitForIdle();
-    }
-
-    public void followTrajectoryAsync(Trajectory trajectory) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(trajectory.start())
-                        .addTrajectory(trajectory)
-                        .build()
-        );
-    }
-
-    public void followTrajectory(Trajectory trajectory) {
-        followTrajectoryAsync(trajectory);
-        waitForIdle();
-    }
-
-    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
-        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequence);
-    }
-
-    public void followTrajectorySequence(TrajectorySequence trajectorySequence) {
-        followTrajectorySequenceAsync(trajectorySequence);
-        waitForIdle();
-    }
+//    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
+//        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequence);
+//    }
+//
+//    public void followTrajectorySequence(TrajectorySequence trajectorySequence) {
+//        followTrajectorySequenceAsync(trajectorySequence);
+//        waitForIdle();
+//    }
 
     public Pose2d getLastError() {
         return trajectorySequenceRunner.getLastPoseError();
