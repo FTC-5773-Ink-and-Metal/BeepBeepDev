@@ -634,15 +634,15 @@ public class TrajFollower {
 
             poseEstimate = dt.getPoseEstimate();
 
-            if (pathBreakerLinear < Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))) && !pathBroken) {
-                pathBroken = true;
-                powX = 0;
-                xTargetPos = poseEstimate.getX();
-                powY = 0;
-                yTargetPos = poseEstimate.getY();
-                instantTargetPositionHeading = poseEstimate.getHeading();
-                pauseTime = timer.time();
-            }
+//            if (pathBreakerLinear < Math.sqrt(Math.pow((xTargetPos - poseEstimate.getX()), 2) + (Math.pow((yTargetPos - poseEstimate.getY()), 2))) && !pathBroken) {
+//                pathBroken = true;
+//                powX = 0;
+//                xTargetPos = poseEstimate.getX();
+//                powY = 0;
+//                yTargetPos = poseEstimate.getY();
+//                instantTargetPositionHeading = poseEstimate.getHeading();
+//                pauseTime = timer.time();
+//            }
 
             control_signal_x = pX.calculate(xTargetPos, poseEstimate.getX()) + powX;
             control_signal_y = pY.calculate(yTargetPos, poseEstimate.getY()) + powY;
@@ -737,9 +737,9 @@ public class TrajFollower {
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, curve_length);
 
         while (true) {
-            if (isMotionless() && atTarget(poseEstimate, desiredPose)) {
-                break;
-            }
+//            if (isMotionless() && atTarget(poseEstimate, desiredPose)) {
+//                break;
+//            }
             poseEstimate = dt.getPoseEstimate();
 
             if(!Objects.isNull(dt.getPoseVelocity())) {
@@ -815,71 +815,98 @@ public class TrajFollower {
     }
 
     public void followTrajSequence(ArrayList<Trajectory> trajs) {
-        ElapsedTime timer = new ElapsedTime();
-        timer.time();
-
         double totalLength = 0;
-        for(Trajectory t : trajs) totalLength += t.curveLength();
+        for (Trajectory t : trajs) totalLength += t.curveLength();
 
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, totalLength);
         MotionProfile motionProfileAng = new MotionProfile(maxAngAccel, maxAngVel, Math.toRadians(trajs.get(trajs.size() - 1).endPose.getHeading()));
 
-        double curDistTravelled = 0;
-        int curPath = 0;
+        Pose2d endPose = trajs.get(trajs.size()-1).endPose;
+        Pose2d poseEstimate = dt.getPoseEstimate();
+//        double curDistTravelled = 0;
+        double fullPathDistTravelled = 0;
+        int currPath = 0;
 
-        Paths curPathType = Paths.valueOf(trajs.get(0).pathType);
+//        Paths curPathType = Paths.valueOf(trajs.get(0).pathType);
 
-        while(true) {
-            double instantAngPosition = motionProfileAng.getPosition(timer.time());
-            double angVel = motionProfileAng.getVelocity(timer.time());
-            double angAccel = motionProfileAng.getAcceleration(timer.time());
+        ElapsedTime timer = new ElapsedTime();
+        timer.time();
 
-            double powAng = angVel * kV_ang + angAccel * kA_ang;
-            powAng = powAng + kS_ang * powAng/Math.abs(powAng);
+        while (true) {
+            if (isMotionless() && atTarget(poseEstimate, endPose)) {
+                telemetry.addData("Is in loop 3", 1);
+                telemetry.update();
+                break;
+            }
+            poseEstimate = dt.getPoseEstimate();
+//            double instantAngPosition = motionProfileAng.getPosition(timer.time());
+//            double angVel = motionProfileAng.getVelocity(timer.time());
+//            double angAccel = motionProfileAng.getAcceleration(timer.time());
+//
+//            double powAng = angVel * kV_ang + angAccel * kA_ang;
+//            powAng = powAng + kS_ang * powAng/Math.abs(powAng);
 
             double instantTargetPosition = motionProfile.getPosition(timer.time());
-            curDistTravelled += instantTargetPosition;
-            double instantTargetVelocity = motionProfile.getVelocity(timer.time());
-            double instantTargetAcceleration = motionProfile.getAcceleration(timer.time());
+//            curDistTravelled = instantTargetPosition;
+//            double instantTargetVelocity = motionProfile.getVelocity(timer.time());
+//            double instantTargetAcceleration = motionProfile.getAcceleration(timer.time());
+            Trajectory currTraj = trajs.get(currPath);
+            telemetry.addData("currPath", currPath);
 
-            switch (curPathType) {
-                case BEZIER:
-                    u = bezier_param_of_disp(instantTargetPosition-path_distance, bezier_calc.get_sums(), bezier_calc.get_upsilon());
-                    control_signal_x = pid_x.calculate(bezier_x.bezier_get(u), poseEstimate.getX());
-                    control_signal_y = pid_y.calculate(bezier_y.bezier_get(u), poseEstimate.getY());
-
-                    // Velocity
-                    // s′(t)u′(s(t))x′(u(s(t)))
-                    duds = bezier_calc.bezier_param_of_disp_deriv(bezier_x, bezier_y, u);
-                    dxdu = bezier_x.bezier_deriv(u);
-                    dydu = bezier_y.bezier_deriv(u);
-                    x_vel = dxdu * duds * instantTargetVelocity;
-                    y_vel = dydu * duds * instantTargetVelocity;
-
-                    // Acceleration
-                    // (s'(t))^2 * (u'(s(t)))^2 * x''(u(s(t))) + ((s'(t))^2 * u''(s(t)) + s''(t) * u'(s(t))) * x'(u(s(t)))
-                    du2ds = bezier_calc.bezier_param_of_disp_deriv2(bezier_x, bezier_y, u);
-                    dx2du = bezier_x.bezier_deriv2(u);
-                    dy2du = bezier_y.bezier_deriv2(u);
-                    x_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dx2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dxdu;
-                    y_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dy2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dydu;
-
-                    // Combined
-                    totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x;
-                    totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
-                    control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading2)), angleWrap(poseEstimate.getHeading())) + powAng;
-                case LINEAR:
-
-            }
-
-            double d = 0;
-            for(int i = 0; i < trajs.size(); ++i) {
-                if(curDistTravelled >= d) {
-                    curPathType.valueOf(trajs.get(i).pathType);
-                    ++curPath;
+            if (instantTargetPosition >= currTraj.curveLength()+fullPathDistTravelled) {
+                telemetry.addData("Is in loop 1", 1);
+                currPath++;
+                telemetry.addData("currPath", currPath);
+//                fullPathDistTravelled = currTraj.curveLength();
+                if (currPath >= trajs.size()) {
+                    telemetry.addData("Is in loop 2", 1);
+                    telemetry.update();
+                    break; // come back here and fix motionless
                 }
-                d += trajs.get(i).curveLength();
+                fullPathDistTravelled = 0;
+                for (int i = 0; i <= currPath; i++) fullPathDistTravelled += trajs.get(i).curveLength();
+                currTraj = trajs.get(currPath);
             }
+
+            telemetry.addData("fullPathDistTravelled", fullPathDistTravelled);
+            telemetry.addData("motionProfile.getPosition(currTime) - fullPathDistTravelled", motionProfile.getPosition(timer.time()) - fullPathDistTravelled);
+            telemetry.update();
+
+            Vector2d pow = currTraj.calculatePow(motionProfile, fullPathDistTravelled, timer.time(), pX, pY, poseEstimate);
+            double totalX = pow.getX();
+            double totalY = pow.getY();
+
+            Vector2d input = new Vector2d(
+                    totalX,
+                    totalY
+            ).rotated(-poseEstimate.getHeading());
+
+            dt.setWeightedDrivePower(
+                    new Pose2d(
+                            input.getX(),
+                            input.getY(),
+                            0
+                    )
+            );
+
+            dt.update();
+
+//            switch (curPathType) {
+//                case BEZIER:
+//
+////                    control_signal_heading = pid_heading.calculate(angleWrap(Math.toRadians(desired_heading2)), angleWrap(poseEstimate.getHeading())) + powAng;
+//                case LINEAR:
+//
+//            }
+
+//            double d = 0;
+//            for(int i = 0; i < trajs.size(); ++i) {
+//                if(curDistTravelled >= d) {
+//                    curPathType.valueOf(trajs.get(i).pathType);
+//                    ++curPath;
+//                }
+//                d += trajs.get(i).curveLength();
+//            }
         }
     }
 

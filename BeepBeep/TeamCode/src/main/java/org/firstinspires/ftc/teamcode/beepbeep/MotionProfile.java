@@ -7,10 +7,12 @@ public class MotionProfile {
     private double accelerationDistance;
     private double deaccelerationDt;
     private double cruiseDt;
+    private double distance;
 
     public MotionProfile(double maxAcceleration, double maxVelocity, double distance) {
         this.maxAcceleration = maxAcceleration;
         this.maxVelocity = maxVelocity;
+        this.distance = distance;
 
         // Calculate the time it takes to accelerate to max velocity
         this.accelerationDt = maxVelocity / maxAcceleration;
@@ -130,5 +132,9 @@ public class MotionProfile {
         }
 
         return false;
+    }
+
+    public double getDistance() {
+        return this.distance;
     }
 }

@@ -20,6 +20,9 @@ import org.firstinspires.ftc.teamcode.beepbeeplib.util.LinearTraj;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.PIDController;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.TrajFollower;
+import org.firstinspires.ftc.teamcode.beepbeeplib.util.Trajectory;
+
+import java.util.ArrayList;
 
 @Config
 public class Drive extends SampleMecanumDrive {
@@ -54,5 +57,9 @@ public class Drive extends SampleMecanumDrive {
 
     public void followTurn(double desired_heading, double start_heading, int direction) {
         follower.turn(desired_heading, start_heading, pid_x, pid_y, pid_heading, direction);
+    }
+
+    public void followTrajectorySequence(ArrayList<Trajectory> trajs) {
+        follower.followTrajSequence(trajs);
     }
 }

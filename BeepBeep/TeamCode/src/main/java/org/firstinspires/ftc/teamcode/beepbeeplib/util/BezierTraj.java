@@ -1,9 +1,15 @@
 package org.firstinspires.ftc.teamcode.beepbeeplib.util;
 
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kS_y;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_x;
+import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.kV_y;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
+import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 
 public class BezierTraj extends Trajectory {
     private double[] sums, upsilon;
@@ -120,6 +126,40 @@ public class BezierTraj extends Trajectory {
         this.upsilon = upsilon;
 
         return sums[99];
+    }
+
+    @Override
+    public Vector2d calculatePow(MotionProfile motionProfile, double fullPathDistTravelled, double currTime, PIDController pid_x, PIDController pid_y, Pose2d currPose) {
+        double instantTargetPosition = motionProfile.getPosition(currTime);
+        double instantTargetVelocity = motionProfile.getVelocity(currTime);
+        double instantTargetAcceleration = motionProfile.getAcceleration(currTime);
+        double path_distance = motionProfile.getDistance();
+
+        double u = bezier_param_of_disp(instantTargetPosition-fullPathDistTravelled, this.get_sums(), this.get_upsilon());
+        double control_signal_x = pid_x.calculate(x.bezier_get(u), currPose.getX());
+        double control_signal_y = pid_y.calculate(y.bezier_get(u), currPose.getY());
+
+        // Velocity
+        // s′(t)u′(s(t))x′(u(s(t)))
+        double duds = bezier_param_of_disp_deriv(u);
+        double dxdu = x.bezier_deriv(u);
+        double dydu = y.bezier_deriv(u);
+        double x_vel = dxdu * duds * instantTargetVelocity;
+        double y_vel = dydu * duds * instantTargetVelocity;
+
+        // Acceleration
+        // (s'(t))^2 * (u'(s(t)))^2 * x''(u(s(t))) + ((s'(t))^2 * u''(s(t)) + s''(t) * u'(s(t))) * x'(u(s(t)))
+        double du2ds = bezier_param_of_disp_deriv2(u);
+        double dx2du = x.bezier_deriv2(u);
+        double dy2du = y.bezier_deriv2(u);
+        double x_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dx2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dxdu;
+        double y_accel = Math.pow(instantTargetVelocity, 2) * Math.pow(duds, 2) * dy2du + Math.pow(instantTargetVelocity, 2) * du2ds + instantTargetAcceleration * duds * dydu;
+
+        // Combined
+        double totalX = control_signal_x + x_vel * kV_x + x_accel * kS_x;
+        double totalY = control_signal_y + y_vel * kV_y + y_accel * kS_y;
+
+        return new Vector2d(totalX, totalY);
     }
 
     public double turn_direction() {
