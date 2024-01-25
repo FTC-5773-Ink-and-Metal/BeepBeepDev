@@ -39,10 +39,6 @@ public class Drive extends SampleMecanumDrive {
         this.follower = new TrajFollower(this, telemetry, pid_x, pid_y, pid_heading);
     }
 
-    public void followTrajectory(BezierCurve bezier_x, BezierCurve bezier_y, double desired_heading, double time_factor) {
-        follower.followBezier(bezier_x, bezier_y, pid_x, pid_y, pid_heading, desired_heading, time_factor);
-    }
-
     public void followTrajectory(BezierTraj bezier) {
         follower.followBezier(bezier);
     }
