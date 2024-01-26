@@ -36,7 +36,7 @@ public class SequenceTest extends LinearOpMode {
     public static double desired_x = 60;
     public static double desired_y = 30;
 
-    public static double desired_x2 = 60;
+    public static double desired_x2 = 70;
     public static double desired_y2 = 30;
 
     public static double deg_desired_heading = 0;
@@ -60,6 +60,8 @@ public class SequenceTest extends LinearOpMode {
         telemetry.addData("currPath", 0);
         telemetry.addData("fullPathDistTravelled", 0);
         telemetry.addData("motionProfile.getPosition(currTime) - fullPathDistTravelled", 0);
+        telemetry.addData("totalPathFinished", 0);
+        telemetry.addData("powX", 0);
         telemetry.update();
 
         waitForStart();

@@ -368,6 +368,7 @@ public class TrajFollower {
 
     public void followTrajSequence(ArrayList<Trajectory> trajs) {
         double totalLength = 0;
+        boolean totalPathFinished = false;
         for (Trajectory t : trajs) totalLength += t.curveLength();
 
         MotionProfile motionProfile = new MotionProfile(maxAccel, maxVel, totalLength);
@@ -390,31 +391,38 @@ public class TrajFollower {
             poseEstimate = dt.getPoseEstimate();
 
             double instantTargetPosition = motionProfile.getPosition(timer.time());
+            if (totalPathFinished) instantTargetPosition = totalLength;
 
             Trajectory currTraj = trajs.get(currPath);
             telemetry.addData("currPath", currPath);
 
-            if (instantTargetPosition >= currTraj.curveLength()+fullPathDistTravelled) {
+            if (!totalPathFinished && instantTargetPosition >= currTraj.curveLength()+fullPathDistTravelled) {
                 telemetry.addData("Is in loop 1", 1);
                 currPath++;
                 telemetry.addData("currPath", currPath);
                 if (currPath >= trajs.size()) {
                     telemetry.addData("Is in loop 2", 1);
                     telemetry.update();
-                    break;
+                    totalPathFinished = true;
                 }
                 fullPathDistTravelled = 0;
-                for (int i = 0; i <= currPath; i++) fullPathDistTravelled += trajs.get(i).curveLength();
+                for (int i = 0; i < currPath; i++) fullPathDistTravelled += trajs.get(i).curveLength();
                 currTraj = trajs.get(currPath);
             }
 
             telemetry.addData("fullPathDistTravelled", fullPathDistTravelled);
             telemetry.addData("motionProfile.getPosition(currTime) - fullPathDistTravelled", motionProfile.getPosition(timer.time()) - fullPathDistTravelled);
-            telemetry.update();
+            telemetry.addData("totalPathFinished", totalPathFinished);
+
 
             Vector2d pow = currTraj.calculatePow(motionProfile, fullPathDistTravelled, timer.time(), pX, pY, poseEstimate);
             double totalX = pow.getX();
             double totalY = pow.getY();
+
+            if (totalPathFinished) {
+                totalX = pX.calculate(endPose.getX(), poseEstimate.getX());
+                totalY = pY.calculate(endPose.getY(), poseEstimate.getY());
+            }
 
             Vector2d input = new Vector2d(
                     totalX,
@@ -430,6 +438,9 @@ public class TrajFollower {
             );
 
             dt.update();
+
+            telemetry.addData("powX", totalX);
+            telemetry.update();
         }
     }
 

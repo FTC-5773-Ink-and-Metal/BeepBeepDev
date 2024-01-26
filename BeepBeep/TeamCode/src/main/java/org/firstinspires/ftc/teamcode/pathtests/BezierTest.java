@@ -50,6 +50,6 @@ public class BezierTest extends LinearOpMode {
 
         waitForStart();
 
-        drive.followTrajectory(bezier_x, bezier_y, Math.toRadians(desired_heading), time_factor);
+//        drive.followTrajectory(bezier_x, bezier_y, Math.toRadians(desired_heading), time_factor);
     }
 }
