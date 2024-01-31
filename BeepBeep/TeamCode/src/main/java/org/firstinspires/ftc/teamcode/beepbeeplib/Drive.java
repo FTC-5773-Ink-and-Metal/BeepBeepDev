@@ -13,7 +13,7 @@ import static org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants.Kp_y;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
+import org.firstinspires.ftc.teamcode.pointfollow.BezierCurve;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.PIDController;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.TrajFollower;

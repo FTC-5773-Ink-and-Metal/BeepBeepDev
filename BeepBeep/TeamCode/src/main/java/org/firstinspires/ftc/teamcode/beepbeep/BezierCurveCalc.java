@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.beepbeep;
 
+import org.firstinspires.ftc.teamcode.pointfollow.BezierCurve;
+
 public class BezierCurveCalc {
 
     private double[] sums, upsilon;

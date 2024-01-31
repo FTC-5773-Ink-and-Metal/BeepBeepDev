@@ -15,7 +15,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.beepbeep.BezierCurve;
+import org.firstinspires.ftc.teamcode.pointfollow.BezierCurve;
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;

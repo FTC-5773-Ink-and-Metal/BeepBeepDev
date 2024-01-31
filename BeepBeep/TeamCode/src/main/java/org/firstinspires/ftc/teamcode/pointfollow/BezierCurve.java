@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode.beepbeep;
+package org.firstinspires.ftc.teamcode.pointfollow;
+
+import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 
 public class BezierCurve {
     private double a, b, c, d;
