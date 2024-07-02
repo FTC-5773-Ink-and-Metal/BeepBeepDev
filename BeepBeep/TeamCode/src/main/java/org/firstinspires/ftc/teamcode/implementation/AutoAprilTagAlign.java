@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeep.PIDController;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -106,9 +106,9 @@ public class AutoAprilTagAlign extends LinearOpMode {
 
             if (gamepad1.a && !goToTag) {
                 while (gamepad1.a) {}
-                path_distance = Math.sqrt(Math.pow(desired_x, 2) + Math.pow(desired_y, 2));
-                path_angle = Math.atan2(desired_y, desired_x); // check
-                motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
+//                path_distance = Math.sqrt(Math.pow(desired_x, 2) + Math.pow(desired_y, 2));
+//                path_angle = Math.atan2(desired_y, desired_x); // check
+//                motionProfile = new MotionProfile(maxAccel, maxVel, path_distance);
 
                 drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 

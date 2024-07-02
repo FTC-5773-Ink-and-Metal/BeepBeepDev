@@ -125,13 +125,13 @@ public class CurvePointCalc {
         double minDist = Math.sqrt(Math.pow(currPose.getX() - this.x_points[0], 2) + Math.pow(currPose.getY() - this.y_points[0], 2));
         Vector2d minPoint = new Vector2d(x_points[0], y_points[0]);
 
-        for (int i = 0; i < this.x_points.length; i++) {
-            double x = this.x_points[i];
-            double y = this.y_points[i];
+        for (int i = 0; i < this.x_points.length - 1; i++) {
+//            double x = this.x_points[i];
+//            double y = this.y_points[i];
             double dist = Math.sqrt(Math.pow(currPose.getX() - this.x_points[i], 2) + Math.pow(currPose.getY() - this.y_points[i], 2));
 
             if (dist < minDist) {
-                minPoint = new Vector2d(x_points[i], y_points[i]);
+                minPoint = new Vector2d(x_points[i+1], y_points[i+1]);
                 minDist = dist;
             }
         }

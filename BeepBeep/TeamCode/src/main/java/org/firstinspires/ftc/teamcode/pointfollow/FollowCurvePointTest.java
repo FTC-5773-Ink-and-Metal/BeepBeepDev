@@ -35,6 +35,7 @@ import org.firstinspires.ftc.teamcode.beepbeep.BeepDriveConstants;
 import org.firstinspires.ftc.teamcode.beepbeep.BezierCurveCalc;
 import org.firstinspires.ftc.teamcode.beepbeep.MotionProfile;
 import org.firstinspires.ftc.teamcode.beepbeep.PIDController;
+import org.firstinspires.ftc.teamcode.beepbeeplib.Drive;
 import org.firstinspires.ftc.teamcode.beepbeeplib.util.SampleMecanumDrive;
 
 @Config
@@ -57,7 +58,7 @@ public class FollowCurvePointTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        Drive drive = new Drive(hardwareMap);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
