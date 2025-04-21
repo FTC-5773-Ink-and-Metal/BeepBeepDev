@@ -1,0 +1,20 @@
+BeepBeep Files + Purposes:
+
+To-Do: Define it all
+
+BeepDriveConstants
+BeepFeedTune
+BeepFeedforwardTuner
+BeepLibTest
+BezierCurve
+BezierCurveCalc
+FollowCombinedTest
+FollowCurveTest
+FollowMultipleLinearTest
+LineTo
+LinearTest
+MotionProfile
+PIDController
+Trajectory
+TrajectoryTest
+TurnTestMP
